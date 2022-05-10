@@ -1,50 +1,13 @@
-const Class = require('../models').Class;
-const User = require('../models').User;
-const Regis = require('../models').Regis;
-const Client = require('../models').Client;
 
-// const model = require('../models/index')
+const Class = require('../models').Class;
+const sequelize = require('../models').sequelize;
+const { max } = require('moment');
 const Sequelize = require('sequelize');
-const {sequelize} = require('../models')
 const AppError = require('../utils/errorHandle/appError');
 const catchAsync = require('../utils/errorHandle/catchAsync');
 
 const Op = Sequelize.Op;
 // const model = require('../models/index')
-
-const getUser = async(req, res) => {
-    const user = await User.findAll({
-    })
-    res.status(200).json({
-        status: 'success',
-        data: user
-    })
-}
-const idUser = async(req, res) => {
-    const user = await User.findAll({
-        where: { user_id: req.params.id },
-    })
-    res.status(200).json({
-        status: 'success',
-        data: user
-    })
-}
-
-const postCRUD = async (req, res) => {
-    await User.create({
-        firstName: req.body.firstName,
-        user_email: req.body.user_email,
-        password: req.body.password
-    })
-    res.status(200).json({
-        status: 'success',
-        message: 'please check your email to confirm within 3 minutes ',
-        data: req.body
-    })
-}
-const getCRUD = async (req, res) => {
-    return res.render('crud.ejs');
-}
 const getAllClass = catchAsync(async (req, res) => {
     // localhost:8080/api/classes?status=open
     let checkStatus = ['open']
@@ -83,6 +46,7 @@ const createClass = catchAsync(async (req, res,next) => {
 
 const updateClass = catchAsync(async (req, res,next) => {
     const classId = req.params.id;
+    console.log(req.params);
     const currentClass = await Class.findOne({ where: { class_id: classId}})
     if(!currentClass) {
         return next(new AppError('No class found with this id', 404));
@@ -125,29 +89,8 @@ const findClass = catchAsync(async (req, res,next) => {
     })
 })
 
-const getListRegisterClass = catchAsync(async (req, res, next)=>{
-    // pass to param: /api/classes/listRegistered?status=pending,active,cancel
-    let listRegis;
-    if(req.query.action) {
-        const defaultFilter = ['accept', 'reject'];
-        let clientFiler = req.query.action?.split(',');
-        if(!clientFiler) {
-            clientFiler = defaultFilter;
-        }
-        listRegis = await Regis.findAll({
-            where: {
-                admAction: {
-                    [Op.in] : clientFiler
-                },
-            },
-        });
-    }else {
-        listRegis = await Regis.findAll()
-    }
-    res.status(200).json({
-        status: 'success',
-        data: listRegis,
-    });
+const getMyRegisClass = catchAsync(async (req, res, next)=>{
+    // pass to param: /api/classes/myClass?status=pending,active,cancel
 })
 const submitClassRegistration = catchAsync(async (req, res, next)=>{
     const accept = 'accept';
@@ -158,7 +101,7 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
             where : {class_id, client_id, status: 'pending'},
             include : {
                 model: Client,
-                attributes : ['client_email'],
+                attributes : ['email'],
             },
         });
         if(!currentRegis) {
@@ -167,7 +110,7 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
         const currentClass = await Class.findOne({
             where: { class_id : class_id},
         });
-        const clientEmail = currentRegis.Client.client_email;
+        const clientEmail = currentRegis.User.email;
         const max_students = currentClass.maxStudent;
         const currentStudent = currentClass.currentStudent;
         if(action === accept) {
@@ -181,7 +124,6 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
                 },
                 { transaction: t}
             );
- 
             await currentClass.increment('current_student', {transaction: t});
             if(max_students - currentStudent === 1) {
                 await currentClass.update(
@@ -191,7 +133,7 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
                     {transaction: t}
                 );
             }
-            await Class.create({ class_id, client_id}, {transaction : t});
+            await Class.create({ class_id, client_id}, transaction(t));
             helperFn.sendEmail(
                 clientEmail,
                 'Congratulation',
@@ -217,42 +159,11 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
         })
     })
 })
-const viewClientsInClass = catchAsync(async (req, res, next) => {
-    const id = req.params.id
-    const data = await Class.findOne({
-        where: { class_id: id },
-        attributes: [],
-        include: [
-            {
-                model: Client,
-                attributes: ['client_email','age','phonenumber'],
-                through: {
-                    attributes: ['status']
-                }
-            }
-        ]
-    })
-    if (!data) {
-        return next(new AppError('classId not correct', 404));
-    }
-      res.status(200).json({
-        status: 'success',
-        data: data,
-    });
-})
-
-// create calender
 module.exports = {
-    getUser: getUser,
-    idUser: idUser,
-    postCRUD: postCRUD,
-    getCRUD:getCRUD,
     getAllClass:getAllClass,
     createClass:createClass,
     updateClass:updateClass,
     deleteClass:deleteClass,
     findClass:findClass,
     submitClassRegistration: submitClassRegistration,
-    getListRegisterClass:getListRegisterClass,
-    viewClientsInClass:viewClientsInClass,
 }

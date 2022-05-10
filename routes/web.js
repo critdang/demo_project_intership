@@ -22,7 +22,7 @@ let initWebRoutes = (app) => {
     // update password
     router.patch('/updateClientPassword',auth.protectingRoutes, clientController.updateClientPassword)
     // upload image
-    router.post('/uploadAvatar',);
+    router.post('/uploadAvatar',clientController.uploadAvatar);
     // updateMe
     router.patch('/updateMe',clientController.uploadAvatar,clientController.updateMe)
     

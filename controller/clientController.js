@@ -37,7 +37,6 @@ const postCRUD = catchAsync(async (req, res,next) => {
         firstName,
         client_email,
         password
-        
     })
     
     const token = helperFn.generateToken({client_email}, '3m');
@@ -138,13 +137,17 @@ const verifyClientEmail = catchAsync(async(req, res,next) => {
 })
 
 const updateClientPassword = catchAsync(async (req, res,next) => {
+    const { oldPass, newPass } = req.body;
     const client = await Client.findOne({
         where: {client_id: req.client.client_id}
     })
     console.log('req client',req.client)
     const checkPass = await helperFn.comparePassword(oldPass,client.password)
+    // console.log('check pass',checkPass)
+    // console.log('client password',client.password)
+    // console.log('old password',oldPass)
     if(!checkPass) {
-        return next(new AppError('please provide a password',400));
+        return next(new AppError('please try the right password',400));
     }
     const hashPass = await bcrypt.hash(newPass,8);
     client.password = hashPass;

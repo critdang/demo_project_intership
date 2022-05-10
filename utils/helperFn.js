@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const AppError = require('./errorHandle/appError');
-
+require('dotenv').config()
 
 exports.generateToken = (key,time) => {
     return jwt.sign(key, process.env.JWT_SECRET, {
@@ -45,9 +45,16 @@ exports.comparePassword = async (inputPassword, userPassword) => {
 const fileStorage = multer.diskStorage({
   destination: (req,file,cb) => {
     cb(null, 'public/image/client');
+    if(req.body.user_id) 
+    cb(null, 'public/image/user');
   },
   filename:(req,file,cb) => {
-    cb(null, `client-${req.client_id}-avatar.jpeg`); //edit filename
+    if(req.body.client_id){
+      cb(null, `client-${req.body.client_id}-avatar.jpeg`); //edit filename
+    }
+    if(req.body.user_id){
+      cb(null, `user-${req.body.user_id}-avatar.jpeg`); //edit filename
+    }
   }
 });
 

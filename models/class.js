@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
     subject: {
       allowNull: false,
       type: DataTypes.STRING,
+      validate: {
+        notNull: { msg: 'subject is required' },
+        notEmpty: { msg: 'subject must not be empty' },
+      },
     },
     class_description: {
       type: DataTypes.STRING,
@@ -51,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.ENUM('open', 'close', 'pending'),
       defaultValue: 'pending',
-      allowNull: true,
+      allowNull: false,
     },
     week_day: {
       allowNull: true,
@@ -60,6 +64,9 @@ module.exports = (sequelize, DataTypes) => {
     max_students: {
       allowNull: false,
       type: DataTypes.INTEGER,
+      validate: {
+        notNull: { msg: 'maxStudent is required' },
+      },
     },
     current_student: {
       type: DataTypes.INTEGER,

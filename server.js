@@ -4,12 +4,16 @@ const bodyparser = require("body-parser");
 const viewEngine = require("./config/viewEngine");
 const {sequelize} = require("./models");
 const cors = require("cors");
+const cron = require("node-cron");
+const reminder = require("./utils/reminder")
 require('dotenv').config();
-
+//reminder
+// cron.schedule('*/1 * * * * *',reminder) // run every minutes
 // route
 // const userRouters = require('./routes/route') khi không có initWebRoutes
 const initWebRoutes = require('./routes/web');
 const initClassRoutes = require('./routes/classRouter')
+const initAdminRouter = require('./routes/adminRouter')
 const app = express();
 app.use(cors())
 
@@ -31,8 +35,7 @@ viewEngine(app);
 //import route
 initWebRoutes(app);
 initClassRoutes(app);
-
-
+initAdminRouter(app);
 // listen port
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, async () => {

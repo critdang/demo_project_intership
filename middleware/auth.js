@@ -17,7 +17,6 @@ exports.protectingRoutes = catchAsync(async (req, res,next) => {
         return next(new AppError("You have  not log in yet",401));
     }
     const decode = await jwt.verify(req.token, process.env.JWT_SECRET);
-    console.log('decode client_id',decode.client_id)
     const client = await Client.findOne({
         attributes: {exclude: ['password','countLogin']},
         where: {
