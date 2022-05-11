@@ -1,5 +1,7 @@
 
 const Client = require('../models').Client;
+const Regis = require('../models').Regis;
+const Class = require('../models').Class;
 // const model = require('../models/index')
 const helperFn = require('../utils/helperFn');
 const catchAsync = require('../utils/errorHandle/catchAsync');
@@ -10,21 +12,25 @@ const cli = require('nodemon/lib/cli');
 const cloudinary = require('cloudinary')
 const getClient = async(req, res) => {
     const client = await Client.findAll({
+        attributes: { exclude: ['password', 'countLogin', 'isActive'] },
     })
-    res.status(200).json({
-        status: 'success',
-        data: client
-    })
+    // res.status(200).json({
+    //     status: 'success',
+    //     data: client
+    // })
+    res.render('admin/viewClients',{data: client})
 }
 const idClient = async(req, res) => {
     const client = await Client.findOne({
         where: { client_id: req.params.id },
-        attributes: { exclude: ['password', 'role', 'countLogin', 'isActive'] },
+        attributes: { exclude: ['password', 'countLogin', 'isActive'] },
     });
-    res.status(200).json({
-        status: 'Success.Welcome to Profile',
-        data: client
-    })
+    // res.status(200).json({
+    //     status: 'Success.Welcome to Profile',
+    //     data: client
+    // })
+    res.render("website/websiteView",{ data: client})
+
 }
 
 const postCRUD = catchAsync(async (req, res,next) => {
@@ -100,18 +106,16 @@ const login = catchAsync(async (req, res,next) => {
     const token = helperFn.generateToken({ client_id:client.client_id},'1d');
     client.countLogin = 0;
     client.save(); //save database by sequelize
-    res.status(200).json({
-        status: 'success',
-        token: token,
-        data: {
-            client: {
-                client_email: client_email,
-                firstName: firstName,
-                avatar: avatar,
-                client_id: client_id,
-            },
-        }
-    });
+    // res.status(200).json({
+    //     status: 'success',
+    //     token: token,
+    //     data: [
+    //         client
+    //     ]
+    // });
+    
+    res.render("website/websiteView",{ data: [client]})
+
 });
 const loginView = async(req, res) => {
     return res.render('login.ejs')
@@ -137,9 +141,13 @@ const verifyClientEmail = catchAsync(async(req, res,next) => {
 })
 
 const updateClientPassword = catchAsync(async (req, res,next) => {
+    const {client_id} = req.params
+    console.log('update client', client_id)
     const { oldPass, newPass } = req.body;
     const client = await Client.findOne({
-        where: {client_id: req.client.client_id}
+        where: {client_id: client_id}
+        // where: {client_email: client_email}
+
     })
     console.log('req client',req.client)
     const checkPass = await helperFn.comparePassword(oldPass,client.password)
@@ -156,7 +164,13 @@ const updateClientPassword = catchAsync(async (req, res,next) => {
         status: 'success',
     });
 });
-
+const updateClientPasswordView = (req, res) => {
+    res.render('website/updateClientPasswordView.ejs',{data : req.params})
+    //check biến
+    // res.status(200).json({
+    //     data : req.params
+    // })
+}
 // uploadAvatar
 const uploadAvatar = helperFn.upload.single('image')
 // set up cloudinary config
@@ -169,8 +183,8 @@ cloudinary.config({
 
 const updateMe = catchAsync(async (req, res,next) => {
     console.log('check req.file exist',req.file);
-
-    const {phonenumber, age,client_id} = req.body;
+    const client_id = req.params.client_id
+    const {phonenumber, age,} = req.body;
     const client = await Client.findOne({
         where: {client_id: client_id},
         attributes: {exclude: ['password','countLogin','isActive']},
@@ -190,7 +204,64 @@ const updateMe = catchAsync(async (req, res,next) => {
       });
       client.save();
 })
+const deleteClient = catchAsync(async (req, res) => {
+    client_id = req.params.client_id;
+    const client = await Client.findOne({
+        where: {client_id:client_id}
+    })
+    client.destroy();
+    client.save();
+    // res.status(200).json({
+    //     message:'Client deleted successfully'
+    // })
+    res.redirect('/api/admin/viewClients')
+})
+// update Me view
+const updateMeView = (req, res) => {
+    res.render('website/updateMeView.ejs',
+    {data : req.params}
+    )
+}
+const websiteView = async(req, res) => {
+    res.render('website/websiteView.ejs')
+}
 
+const calender = catchAsync(async(req, res) => {
+    // class_id = req.params.class_id
+    client_id = req.params.client_id
+    
+    const regis = await Regis.findOne({
+        where: {client_id: client_id},
+        include: {
+            model: Class,
+            attributes: ['class_id','subject','from','to']
+        }
+    })
+
+    if(!regis) {
+        res.send('does not have registration')
+    }
+    // res.status(200).json({
+    //     status: 'success',
+    //     data:[regis],
+    //     test:regis.Class.subject
+    // })
+    res.render("website/registrationView",{ data: [regis]})
+})
+
+const cancelRegistration = catchAsync(async (req, res) => {
+    reg_id = req.params.reg_id;
+    
+    const data = await Regis.findOne({
+        where: {reg_id: reg_id}
+    })
+    data.destroy()
+    data.save()
+    // res.status(200).json({
+    //     status: 'success',
+    // })
+    res.redirect('api/calender')
+})
 module.exports = {
     getClient: getClient,
     idClient: idClient,
@@ -200,6 +271,12 @@ module.exports = {
     verifyClientEmail:verifyClientEmail,
     loginView:loginView,
     updateClientPassword:updateClientPassword,
+    updateClientPasswordView:updateClientPasswordView,
     updateMe:updateMe,
+    updateMeView:updateMeView,
     uploadAvatar:uploadAvatar,
+    websiteView:websiteView,
+    deleteClient:deleteClient,
+    calender:calender,
+    cancelRegistration:cancelRegistration
 }

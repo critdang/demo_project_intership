@@ -8,7 +8,7 @@ const Sequelize = require('sequelize');
 const {sequelize} = require('../models')
 const AppError = require('../utils/errorHandle/appError');
 const catchAsync = require('../utils/errorHandle/catchAsync');
-
+const helperFn = require('../utils/helperFn')
 const Op = Sequelize.Op;
 // const model = require('../models/index')
 
@@ -45,7 +45,7 @@ const postCRUD = async (req, res) => {
 const getCRUD = async (req, res) => {
     return res.render('crud.ejs');
 }
-const getAllClass = catchAsync(async (req, res) => {
+const getAllClassOpen = catchAsync(async (req, res) => {
     // localhost:8080/api/classes?status=open
     let checkStatus = ['open']
     if(req.query.status) {
@@ -61,12 +61,26 @@ const getAllClass = catchAsync(async (req, res) => {
     const allClass = await Class.findAll({
         where: Filter
     })
-    res.status(200).json({
-        status: 'success',
-        data: allClass,
-    });
+    // res.status(200).json({
+    //     status: 'success',
+    //     data: allClass,
+    // });
+    return res.render('admin/getAllClassView.ejs',{data:allClass});
+    
 });
-
+const getAllClass = catchAsync(async (req, res) => {
+    const allClass = await Class.findAll({
+    })
+    // res.status(200).json({
+    //     status: 'success',
+    //     data: allClass,
+    // });
+    return res.render('admin/getAllClassView.ejs',{data:allClass});
+    
+});
+const getAllClassView = async (req, res) => {
+    return res.render('admin/getAllClassView.ejs');
+}
 const createClass = catchAsync(async (req, res,next) => {
     const{subject, max_students, from, to } = req.body;
     const newClass = await Class.create({
@@ -80,7 +94,10 @@ const createClass = catchAsync(async (req, res,next) => {
         data: newClass,
     })
 }) 
+const createClassView = async (req, res) => {
+    return res.render('admin/createClassView.ejs')
 
+}
 const updateClass = catchAsync(async (req, res,next) => {
     const classId = req.params.id;
     const currentClass = await Class.findOne({ where: { class_id: classId}})
@@ -107,10 +124,11 @@ const deleteClass = catchAsync(async (req, res,next) => {
         return next(new AppError('Class have student , can not delete', 400));
     }
     await currentClass.destroy();
-    res.status(200).json({
-        status: 'success',
-        message: 'Class deleted successfully'
-    })
+    // res.status(200).json({
+    //     status: 'success',
+    //     message: 'Class deleted successfully'
+    // })
+    res.redirect('/api/admin/allClass');
 })
 
 const findClass = catchAsync(async (req, res,next) => {
@@ -144,15 +162,19 @@ const getListRegisterClass = catchAsync(async (req, res, next)=>{
     }else {
         listRegis = await Regis.findAll()
     }
-    res.status(200).json({
-        status: 'success',
-        data: listRegis,
-    });
+    // res.status(200).json({
+    //     status: 'success',
+    //     data: listRegis,
+    // });
+    res.render('admin/getListRegisterView.ejs',{data:listRegis});
 })
 const submitClassRegistration = catchAsync(async (req, res, next)=>{
     const accept = 'accept';
     const reject = 'reject';
-    const {action, class_id, client_id} = req.body
+    const action = req.params.action
+    const client_id = req.params.client_id
+    console.log(req.params)
+    const  class_id = req.params.class_id
     await sequelize.transaction(async(t) => {
         const currentRegis = await Regis.findOne({
             where : {class_id, client_id, status: 'pending'},
@@ -167,9 +189,10 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
         const currentClass = await Class.findOne({
             where: { class_id : class_id},
         });
+        console.log('currentClass',currentClass)
         const clientEmail = currentRegis.Client.client_email;
-        const max_students = currentClass.maxStudent;
-        const currentStudent = currentClass.currentStudent;
+        const max_students = currentClass.max_students;
+        const currentStudent = currentClass.current_student;
         if(action === accept) {
             if(currentClass.status === 'close') {
                 return next(new AppError('the class is close, can not accept at this time', 404))
@@ -191,7 +214,7 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
                     {transaction: t}
                 );
             }
-            await Class.create({ class_id, client_id}, {transaction : t});
+            
             helperFn.sendEmail(
                 clientEmail,
                 'Congratulation',
@@ -212,10 +235,11 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
                 'Your registered class has been cancel'
             )
         }
-        res.status(200).json({
-            status: 'success',
-        })
+        // res.status(200).json({
+        //     status: 'success',
+        // })
     })
+    res.redirect('/api/classes/listRegistered')
 })
 const viewClientsInClass = catchAsync(async (req, res, next) => {
     const id = req.params.id
@@ -240,7 +264,9 @@ const viewClientsInClass = catchAsync(async (req, res, next) => {
         data: data,
     });
 })
-
+const viewClientsInClassView = async (req, res, next) => {
+    res.render ('class/viewClientsInClass.ejs');
+}
 // create calender
 module.exports = {
     getUser: getUser,
@@ -248,11 +274,14 @@ module.exports = {
     postCRUD: postCRUD,
     getCRUD:getCRUD,
     getAllClass:getAllClass,
+    getAllClassView:getAllClassView,
     createClass:createClass,
+    createClassView:createClassView,
     updateClass:updateClass,
     deleteClass:deleteClass,
     findClass:findClass,
     submitClassRegistration: submitClassRegistration,
     getListRegisterClass:getListRegisterClass,
     viewClientsInClass:viewClientsInClass,
+    viewClientsInClassView:viewClientsInClassView
 }

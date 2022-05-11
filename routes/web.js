@@ -20,13 +20,25 @@ let initWebRoutes = (app) => {
     // verify email
     router.get('/api/verify/:token', clientController.verifyClientEmail)
     // update password
-    router.patch('/updateClientPassword',auth.protectingRoutes, clientController.updateClientPassword)
+    router.post('/updateClientPassword/:client_id', clientController.updateClientPassword)
+    //auth.protectingRoutes,
+    // load login view
+    router.get("/updateClientPasswordView/:id", clientController.updateClientPasswordView)
     // upload image
     router.post('/uploadAvatar',clientController.uploadAvatar);
     // updateMe
-    router.patch('/updateMe',clientController.uploadAvatar,clientController.updateMe)
+    router.post('/updateMe/:client_id',clientController.uploadAvatar,clientController.updateMe)
+    // updateMe view
+    router.get('/updateMeView/:client_id',clientController.updateMeView)
+    // websiteView
+    router.get('/websiteView',clientController.websiteView)
+    // calender
     
+    router.get('/api/calender/:client_id',clientController.calender)
+    // cancelRegis
+    router.get('/api/cancelRegis/:reg_id',clientController.cancelRegistration)
     
+
     return app.use("/",router);
 }
 

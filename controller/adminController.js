@@ -30,18 +30,19 @@ const login = async (req, res) => {
     if(!wrongPassword) {
         return next(new AppError('your password not correct', 400));
     }
-    res.status(200).json({
-        status: 'success',
-        data: {
-            user: {
-                user: user_email,
-                firstName: firstName,
-                lastName: lastName,
-                phonenumber: phonenumber,
-                age: age
-            },
-        }
-    });
+    // res.status(200).json({
+    //     status: 'success',
+    //     data: {
+    //         user: {
+    //             user: user_email,
+    //             firstName: firstName,
+    //             lastName: lastName,
+    //             phonenumber: phonenumber,
+    //             age: age
+    //         },
+    //     }
+    // });
+    res.redirect('/api/admin/allClass')
 }
 const loginAdminView = (req, res) => {
     return res.render('admin/login.ejs')

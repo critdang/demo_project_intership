@@ -11,10 +11,11 @@ let initClassRoutes = (app) => {
         .route('/')
         .get(userController.getAllClass)
         .post(
-            auth.protectingRoutes,
+            
             validate.classValidate,
             userController.createClass
           );
+        //   auth.protectingRoutes,
     router
         .route('/:id')
         .patch(
@@ -28,21 +29,21 @@ let initClassRoutes = (app) => {
         auth.protectingRoutes,
         userController.findClass
     )
-    router.put(
-        '/admin/submit',
-        auth.protectingRoutes,
+    router.get(
+        '/admin/submit/:action/:client_id/:class_id',
+        // auth.protectingRoutes,
         userController.submitClassRegistration
     )
     router.get(
         '/listRegistered',
-        auth.protectingRoutes,
+        // auth.protectingRoutes,
         userController.getListRegisterClass
-    );
+        );
     router.get(
         '/viewUser/:id',
-        auth.protectingRoutes,
         userController.viewClientsInClass
-    );
+        );
+        // auth.protectingRoutes,
     // client - user
     router.delete(
         '/delete/:id', 
