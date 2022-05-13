@@ -104,10 +104,7 @@ const updateClass = catchAsync(async (req, res,next) => {
     if(!currentClass) {
         return next(new AppError('No class found with this id', 404));
     }
-    Object.assign(currentClass, req.body); //gán vào object currentClass
-    console.log('curret class' + currentClass)
-    console.log('current class + req.body',Object.assign(currentClass, req.body))
-    console.log('req.body',req.body)
+    Object.assign(currentClass, req.body); //gán vào object currentClas
     currentClass.save(); //Lưu class hiện tại
     res.status(200).json({
         status: 'success',

@@ -114,7 +114,7 @@ const login = catchAsync(async (req, res,next) => {
     //     ]
     // });
     
-    res.render("website/websiteView",{ data: [client]})
+    res.render("website/websiteView",{ data: [client],token:token})
 
 });
 const loginView = async(req, res) => {

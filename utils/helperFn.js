@@ -5,7 +5,8 @@ const multer = require('multer');
 const AppError = require('./errorHandle/appError');
 require('dotenv').config()
 
-exports.generateToken = (key,time) => {
+exports.generateToke 
+7n = (key,time) => {
     return jwt.sign(key, process.env.JWT_SECRET, {
         expiresIn: time, 
     });

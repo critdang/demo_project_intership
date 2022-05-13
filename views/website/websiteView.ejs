@@ -16,16 +16,19 @@
 
     <!-- Latest compiled JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const token = '<%=token%>'
+      localStorage.setItem('token', token)
+    </script>
 </head>
 <body>
     <div class="container">
         <div class="row">
             <form action="/api/client/" method="POST">
                 <div class="form-row">
-                    
                     <div class="col-12 mt-3">Profile</div>
                     <table class="table table-striped">
-                        <thead>
+                      <thead>
                           <tr>
                             <th scope="col">No.</th>
                             <th scope="col">Email</th>
@@ -37,6 +40,7 @@
                           </tr>
                         </thead>
                         <tbody>
+                          <%=token%>
                         <% data.forEach((item)=> { %>
                           <tr>
                             <th scope="row">1</th>

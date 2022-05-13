@@ -6,10 +6,13 @@ const adminController = require('../controller/adminController')
 const userController = require('../controller/userController')
 const clientController = require('../controller/clientController')
 const auth = require('../middleware/auth')
+const passport = require('passport')
 let initAdminRouter = (app) => {
 
     // router.patch('/updateMe',clientController.uploadAvatar,clientController.updateMe)
-    router.post('/',adminController.login)
+    router.post('/',
+    passport.authenticate('local',{failureRedirect:'/login'}))
+    // ,adminController.login
     // update password
     router.post('/updateUserPassword',adminController.updateUserPassword)
     // updateUser

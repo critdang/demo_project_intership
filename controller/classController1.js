@@ -64,13 +64,16 @@ const updateClass = catchAsync(async (req, res,next) => {
 const deleteClass = catchAsync(async (req, res,next) => {
     const classId = req.params.id;
     const currentClass = await Class.findOne({ where: {class_id: classId} });
+
     if(!currentClass) {
         return next(new AppError('No class found with this id', 404));
     }
     if(currentClass.current_student !==0) {
         return next(new AppError('Class have student , can not delete', 400));
     }
+
     await currentClass.destroy();
+    
     res.status(200).json({
         status: 'success',
         message: 'Class deleted successfully'
@@ -96,6 +99,7 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
     const accept = 'accept';
     const reject = 'reject';
     const {action, class_id, client_id} = req.body
+
     await sequelize.transaction(async(t) => {
         const currentRegis = await Regis.findOne({
             where : {class_id, client_id, status: 'pending'},
@@ -110,9 +114,11 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
         const currentClass = await Class.findOne({
             where: { class_id : class_id},
         });
+
         const clientEmail = currentRegis.User.email;
         const max_students = currentClass.maxStudent;
         const currentStudent = currentClass.currentStudent;
+
         if(action === accept) {
             if(currentClass.status === 'close') {
                 return next(new AppError('the class is close, can not accept at this time', 404))
@@ -140,6 +146,7 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
                 'Congratulation , your registered class has been accepted'
             )
         }
+
         if(action === reject) {
             await currentRegis.update(
                 {
@@ -154,6 +161,7 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
                 'Your registered class has been cancel'
             )
         }
+
         res.status(200).json({
             status: 'success',
         })

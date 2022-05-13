@@ -5,7 +5,7 @@ const AppError = require('../utils/errorHandle/appError');
 const bcrypt = require('bcryptjs');
 const cloudinary = require('cloudinary');
 require('dotenv').config()
-const login = async (req, res) => {
+const login = async (req, res,next) => {
     const {user_email:inputEmail, password:inputPassword} = req.body
     // check exist email
     if(!inputEmail || !inputPassword) {
@@ -66,6 +66,7 @@ const updateUserPassword = catchAsync(async (req, res,next) => {
     });
 });
 const updateUserPasswordView = (req, res) => {
+    if(!req.isAuthenticated()) {return res.redirect('/api/admin/loginAdminUser')}
     return res.render('admin/updateUserPasswordView.ejs')
 }
 // uploadAvatar
