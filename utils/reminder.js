@@ -1,4 +1,4 @@
-const helperFn = require('./helperFn')
+const helperFn = require('./helperFn');
 const {sequelize} = require('../models');
 const {getReminder} = require('./getReminder');
 
@@ -11,6 +11,7 @@ const reminder = async(req, res) => {
                 prev[cur.id].email.push(cur.email);
             },{})
         );
+        
         groupEmail.forEach((el) => {
             helperFn.sendEmail(
               el.email,
@@ -25,7 +26,8 @@ const reminder = async(req, res) => {
 }
 const test = async() => {
     const [results] = await sequelize.query(getReminder);
-    const groupEmail = results
+    const groupEmail = results;
+    
     groupEmail.forEach((acc) => {
         helperFn.sendEmail(
             acc.client_email,

@@ -10,6 +10,8 @@ const AppError = require('../utils/errorHandle/appError');
 const bcrypt = require('bcryptjs/dist/bcrypt');
 const cli = require('nodemon/lib/cli');
 const cloudinary = require('cloudinary')
+require('dotenv').config();
+
 const getClient = async(req, res) => {
     const client = await Client.findAll({
         attributes: { exclude: ['password', 'countLogin', 'isActive'] },
@@ -18,7 +20,7 @@ const getClient = async(req, res) => {
     //     status: 'success',
     //     data: client
     // })
-    res.render('admin/viewClients',{data: client})
+    res.render('admin/viewClients',{data: client});
 }
 const idClient = async(req, res) => {
     const client = await Client.findOne({
@@ -29,64 +31,58 @@ const idClient = async(req, res) => {
     //     status: 'Success.Welcome to Profile',
     //     data: client
     // })
-    res.render("website/websiteView",{ data: client})
-
+    res.render("website/websiteView",{ data: client});
 }
 
 const postCRUD = catchAsync(async (req, res,next) => {
-    const {firstName,client_email,password} = req.body
+    const {firstName,client_email,password} = req.body;
     const emailExists = await Client.findOne({where: {client_email: client_email}});
 
-    console.log(emailExists)
     if(emailExists) {res.json("Email already existed ")}
     await Client.create({
         firstName,
         client_email,
-        password
+        password,
     })
     
     const token = helperFn.generateToken({client_email}, '3m');
+
     helperFn.sendEmail(
         client_email,
-        'Verify your email',
-        'please click the link below to verify your email',
-        '/api/verify/',
-        token
+        process.env.SUCCESS_EMAIL,
+        process.env.SUCCESS_EMAIL_DES,
+        process.env.SUCCESS_EMAIL_ENDPOINT,
+        token,
     );
+
     res.status(200).json({
         status: 'success',
         message: 'please check your email to confirm within 3 minutes ',
-        token: token
+        token: token,
     });
 });
 
 const signup = async (req, res) => {
-    return res.render('crud.ejs');
+    return res.render('website/signup.ejs');
 }
 
 const login = catchAsync(async (req, res,next) => {
-    const {client_email:inputEmail, password:inputPassword} = req.body
+    const {client_email:inputEmail, password:inputPassword} = req.body;
     // check exist email
     if(!inputEmail || !inputPassword) {
         return next(new AppError(`Please provide email and password!`,400))
     }
     // get exist email
-    const client = await Client.findOne( {where: {client_email:inputEmail}})
+    const client = await Client.findOne( {where: {client_email:inputEmail}});
+
     if(!client) {
         return next(new AppError(`your email is not correct`,400));
     }
     // get all params client
     const {
-        client_id,
-        client_email,
         password,
-        firstName,
-        lastName,
         countLogin,
         isActive,
-        phonenumber,
-        age,
-        avatar
     } = client;
     // check countLogin and isActive
     if(countLogin >=3 || !isActive) {
@@ -99,26 +95,19 @@ const login = catchAsync(async (req, res,next) => {
     const wrongPassword = await helperFn.comparePassword(inputPassword,password);
     if(!wrongPassword) {
         await client.increment('countLogin');
-        client.save();
+        await client.save();
         return next(new AppError('your password not correct', 400));
     }
 
     const token = helperFn.generateToken({ client_id:client.client_id},'1d');
     client.countLogin = 0;
-    client.save(); //save database by sequelize
-    // res.status(200).json({
-    //     status: 'success',
-    //     token: token,
-    //     data: [
-    //         client
-    //     ]
-    // });
+    await client.save(); //save database by sequelize
+    // helperFn.returnSuccess(req,res,client);
     
     res.render("website/websiteView",{ data: [client],token:token})
-
 });
 const loginView = async(req, res) => {
-    return res.render('login.ejs')
+    return res.render('website/login.ejs');
 }
 const verifyClientEmail = catchAsync(async(req, res,next) => {
     const token = req.params.token;
@@ -134,20 +123,19 @@ const verifyClientEmail = catchAsync(async(req, res,next) => {
         return next(new AppError('this email not available',401));
     }
     client.isActive = true;
-    client.save()
+    await client.save();
+
     res.status(200).json({
         status: 'success. Your email has been actived',
     })
 })
 
 const updateClientPassword = catchAsync(async (req, res,next) => {
-    const {client_id} = req.params
-    console.log('update client', client_id)
+    const {client_id} = req.params;
     const { oldPass, newPass } = req.body;
     const client = await Client.findOne({
         where: {client_id: client_id}
         // where: {client_email: client_email}
-
     })
     console.log('req client',req.client)
     const checkPass = await helperFn.comparePassword(oldPass,client.password)
@@ -159,20 +147,18 @@ const updateClientPassword = catchAsync(async (req, res,next) => {
     }
     const hashPass = await bcrypt.hash(newPass,8);
     client.password = hashPass;
-    client.save()
+    await client.save();
+
     res.status(200).json({
         status: 'success',
     });
 });
 const updateClientPasswordView = (req, res) => {
-    res.render('website/updateClientPasswordView.ejs',{data : req.params})
-    //check biến
-    // res.status(200).json({
-    //     data : req.params
-    // })
+    res.render('website/updateClientPasswordView.ejs',{data : req.params});
 }
+
 // uploadAvatar
-const uploadAvatar = helperFn.upload.single('image')
+const uploadAvatar = helperFn.upload.single('image');
 // set up cloudinary config
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME, 
@@ -182,14 +168,13 @@ cloudinary.config({
 // updateMe
 
 const updateMe = catchAsync(async (req, res,next) => {
-    console.log('check req.file exist',req.file);
-    const client_id = req.params.client_id
+    // console.log('check req.file exist',req.file); check file
+    const client_id = req.params.client_id;
     const {phonenumber, age,} = req.body;
     const client = await Client.findOne({
         where: {client_id: client_id},
         attributes: {exclude: ['password','countLogin','isActive']},
     });
-    console.log(req.body);
     if(req.file) {
         const img = await cloudinary.uploader.upload(req.file.path, {
             public_id: req.file.filename
@@ -198,23 +183,21 @@ const updateMe = catchAsync(async (req, res,next) => {
     }
     if(phonenumber) client.phonenumber = phonenumber;
     if(age) client.age = age;
-    res.status(200).json({
-        status: 'success',
-        data: client,
-      });
-      client.save();
+    await client.save();
+
+    helperFn.returnSuccess(req, res,client);
+    res.redirect("/admin/getClient")
 })
 const deleteClient = catchAsync(async (req, res) => {
     client_id = req.params.client_id;
     const client = await Client.findOne({
         where: {client_id:client_id}
     })
-    client.destroy();
-    client.save();
+    await client.destroy();
     // res.status(200).json({
     //     message:'Client deleted successfully'
     // })
-    res.redirect('/api/admin/viewClients')
+    res.redirect('/admin/getClient');
 })
 // update Me view
 const updateMeView = (req, res) => {
@@ -223,12 +206,33 @@ const updateMeView = (req, res) => {
     )
 }
 const websiteView = async(req, res) => {
-    res.render('website/websiteView.ejs')
+    res.render('website/websiteView.ejs');
 }
-
-const calender = catchAsync(async(req, res) => {
+const regis = async (req, res) => {
+    client_id = req.params.client_id;
+    class_id = req.params.class_id;
+    const regisExists = await Regis.findOne({
+        where: {
+            client_id: client_id,
+            class_id: class_id
+        }
+    })
+    if(regisExists) {
+        res.json("Your registration has been already existed ")
+        regisExists.destroy();
+    }
+    const data = await Regis.create({
+        client_id,
+        class_id,
+    })
+    res.status(200).json({
+        status: 'success',
+        data: data
+    });
+}
+const registration = catchAsync(async(req, res) => {
     // class_id = req.params.class_id
-    client_id = req.params.client_id
+    client_id = req.params.client_id;
     
     const regis = await Regis.findOne({
         where: {client_id: client_id},
@@ -239,28 +243,62 @@ const calender = catchAsync(async(req, res) => {
     })
 
     if(!regis) {
-        res.send('does not have registration')
+        res.send('does not have registration');
     }
     // res.status(200).json({
     //     status: 'success',
     //     data:[regis],
     //     test:regis.Class.subject
     // })
-    res.render("website/registrationView",{ data: [regis]})
+    res.render("website/cancelRegistrationView",{ data: [regis]});
 })
-
 const cancelRegistration = catchAsync(async (req, res) => {
     reg_id = req.params.reg_id;
     
     const data = await Regis.findOne({
         where: {reg_id: reg_id}
     })
-    data.destroy()
-    data.save()
+    await data.destroy();
+    await data.save();
     // res.status(200).json({
     //     status: 'success',
     // })
-    res.redirect('api/calender')
+    res.redirect('api/calender');
+})
+
+const getOpenClass = catchAsync(async (req, res) => {
+    client_id = req.params.client_id;
+    console.log(client_id);
+    const data = await Class.findOne({
+        where: {status: 'open'},
+    })
+    // helperFn.returnSuccess(req,res,client_id);
+    // res.status(200).json({
+    //     data:[data],
+    //     client_id:{client_id},
+
+    // })
+    // console.log('client_id:',client_id);
+    // console.log('from',data.from);
+    res.render('website/registView',{data:[data],client_id:client_id});
+})
+
+const registedClass = catchAsync(async (req, res) => {
+    client_id = req.params.client_id;
+
+    const data = await Regis.findOne({
+        where: {client_id: client_id, status: 'active'},
+        include: [
+            {
+                model: Class,
+                attributes: ['subject','from','to'],
+            }   
+        ]
+    })
+    // res.status(200).json({
+    //     data:data
+    // })
+    res.render('website/registedClass',{data:[data]});
 })
 module.exports = {
     getClient: getClient,
@@ -268,8 +306,8 @@ module.exports = {
     postCRUD: postCRUD,
     signup:signup,
     login:login,
-    verifyClientEmail:verifyClientEmail,
     loginView:loginView,
+    verifyClientEmail:verifyClientEmail,
     updateClientPassword:updateClientPassword,
     updateClientPasswordView:updateClientPasswordView,
     updateMe:updateMe,
@@ -277,6 +315,9 @@ module.exports = {
     uploadAvatar:uploadAvatar,
     websiteView:websiteView,
     deleteClient:deleteClient,
-    calender:calender,
-    cancelRegistration:cancelRegistration
+    cancelRegistration:cancelRegistration,
+    registration:registration,
+    getOpenClass:getOpenClass,
+    registedClass:registedClass,
+    regis:regis
 }

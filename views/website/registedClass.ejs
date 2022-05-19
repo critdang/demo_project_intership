@@ -16,36 +16,34 @@
 
     <!-- Latest compiled JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="row">
-            <form action="/api/classes/submitRegistration" method="POST">
+            <form action="/api/client/" method="POST">
                 <div class="form-row">
-                    <div class="col-12 mt-3">List Registration</div>
+                    <div class="col-12 mt-3">Registed Class</div>
                     <table class="table table-striped">
                         <thead>
                           <tr>
                             <th scope="col">No.</th>
-                            <th scope="col">Registration Date</th>
-                            <th scope="col">Class id</th>
-                            <th scope="col">Client id</th>
+                            <th scope="col">Subject</th>
+                            <th scope="col">From</th>
+                            <th scope="col">To</th>
                             <th scope="col">Status</th>
+                            <th scope="col">Registration Date</th>
+
                           </tr>
                         </thead>
                         <tbody>
                         <% data.forEach((item)=> { %>
                           <tr>
                             <th scope="row">1</th>
-                            <td><%= item.regisDate %></td>
-                            <td><%= item.class_id %></td>
-                            <td><%= item.client_id %></td>
+                            <td><%= item.Class.subject %></td>
+                            <td><%= item.Class.from %></td>
+                            <td><%= item.Class.to %></td>
                             <td><%= item.status %></td>
-                            <td>
-                                <p onClick="handleAccept(`<%= item.class_id %>`,`<%= item.client_id %>`, `accept`)">Accept</p> <br />
-                                <p onClick="handleReject(`<%= item.class_id %>`,`<%= item.client_id %>`, `reject`)">Reject</p> <br />
-                              </td>
+                            <td><%= item.regisDate %></td>
                           </tr>
                         <% }) %>
                         </tbody>
@@ -55,28 +53,4 @@
         </div>
     </div>
 </body>
-<script>
-  // const axios = require('axios');
-
-  function handleAccept(class_id, client_id,action) {
-    let result = axios.post("http://localhost:8080/admin/submitClassRegis", 
-    {class_id,client_id,action}
-    ).then(response => {
-      console.log(response)
-    })
-    .catch(error => {
-      console.log(error);
-    });
-  }
-  function handleReject(class_id, client_id, action) {
-    let result = axios.post("http://localhost:8080/admin/submitClassRegis", 
-    {class_id,client_id,action}
-    ).then(response => {
-      console.log(response)
-    })
-    .catch(error => {
-      console.log(error);
-    });
-  }
-</script>
 </html>

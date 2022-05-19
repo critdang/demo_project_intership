@@ -27,6 +27,35 @@
             <form action="/api/client/" method="POST">
                 <div class="form-row">
                     <div class="col-12 mt-3">Profile</div>
+                    <% data.forEach((item)=> { %>
+                    <div>
+                      <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                          <ul class="navbar-nav mr-auto">
+                            <li class="nav-item dropdown">
+                              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Class Registration
+                              </a>
+                              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="/client/api/getOpenClass/<%=item.client_id%>">Regist Class</a>
+                                <a class="dropdown-item" href="/client/api/calender/<%=item.client_id%>">Cancel Registration</a>
+                                <a class="dropdown-item" href="/admin/allClass?status=open">List Class</a>
+                              </div>
+                            </li>
+                            <li class="nav-item dropdown">
+                              <a class="nav-link dropdown-toggle" href="/api/classes/listRegisteredClass/" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Class 
+                              </a>
+                              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="/client/api/registedClass/<%=item.client_id%>">List of registered classes </a>
+                                <a class="dropdown-item" href="#">Calendar study</a>
+                              </div>
+                            </li>
+                          </ul>
+                        </div>
+                      </nav>
+                    </div>
+                    <% }) %>
                     <table class="table table-striped">
                       <thead>
                           <tr>
@@ -40,21 +69,20 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <%=token%>
                         <% data.forEach((item)=> { %>
                           <tr>
-                            <th scope="row">1</th>
+                            <th scope="row"><%= item.client_id %></th>
                             <td><%= item.client_email %></td>
                             <td><%= item.firstName %></td>
                             <td><%= item.lastName %></td>
                             <td><%= item.age %></td>
                             <td><%= item.avatar %></td>
                             <td>
-                                <a href="/updateMeView/<%=item.client_id %>">Edit</a> <br />
-                                <a href="/updateClientPasswordView/<%=item.client_id %>">Change Password</a>
+                                <a href="/client/updateMeView/<%=item.client_id %>">Edit</a> <br />
+                                <a href="/client/updateClientPasswordView/<%=item.client_id %>">Change Password</a>
                               </td>
                           </tr>
-                          <a href="api/calender/<%=item.client_id%>" class="btn btn-primary">View Registration</a>
+                          <!-- <a href="api/calender/<%=item.client_id%>" class="btn btn-primary">View Registration</a> -->
                         <% }) %>
                         </tbody>
                       </table>

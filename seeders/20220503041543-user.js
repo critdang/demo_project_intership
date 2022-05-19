@@ -11,7 +11,7 @@ module.exports = {
       age: '23',
       avatar: 'http://',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }]);
   },
 

@@ -3,14 +3,26 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const AppError = require('./errorHandle/appError');
-require('dotenv').config()
+require('dotenv').config();
 
-exports.generateToke 
-7n = (key,time) => {
+exports.generateToken = (key,time) => {
     return jwt.sign(key, process.env.JWT_SECRET, {
         expiresIn: time, 
     });
 };
+exports.returnSuccess = (req,res,data) => {
+  res.status(200).json({
+    status: 'success',
+    data:data,
+  });
+}
+
+exports.returnFail = (req,res,err) => {
+  res.status(404).json({
+    status: 'fail',
+    err:err,
+  });
+}
 
 exports.sendEmail = async (
     clientEmail,
@@ -49,6 +61,7 @@ const fileStorage = multer.diskStorage({
     if(req.body.user_id) 
     cb(null, 'public/image/user');
   },
+  
   filename:(req,file,cb) => {
     if(req.body.client_id){
       cb(null, `client-${req.body.client_id}-avatar.jpeg`); //edit filename

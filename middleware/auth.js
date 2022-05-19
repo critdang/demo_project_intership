@@ -2,10 +2,11 @@ const jwt = require('jsonwebtoken');
 const catchAsync = require('../utils/errorHandle/catchAsync');
 const rateLimit = require('express-rate-limit');
 const AppError = require('../utils/errorHandle/appError');
-
 const {Client} = require('../models');
+
 exports.protectingRoutes = catchAsync(async (req, res,next) => {    
     const bearerHeader = req.headers['authorization'];//raw header
+
     if(typeof bearerHeader !== 'undefined') {
         const bearer = bearerHeader.split(' '); //tách header
         const bearerToken = bearer[1];//lấy dãy string sau
@@ -16,20 +17,22 @@ exports.protectingRoutes = catchAsync(async (req, res,next) => {
     if(!req.token || req.token === "null") {
         return next(new AppError("You have  not log in yet",401));
     }
+
     const decode = await jwt.verify(req.token, process.env.JWT_SECRET);
     const client = await Client.findOne({
         attributes: {exclude: ['password','countLogin']},
         where: {
-            client_id: decode.client_id
+            client_id: decode.client_id,
         }, 
         //tại sao phải decode id
     });
+
     if(!client) {
         return next(new AppError('this client does not exist',401));
     }
+
     req.client = client; //tại sao cần cái này
     next();
-
 })
 
 exports.loginLimiter = rateLimit({

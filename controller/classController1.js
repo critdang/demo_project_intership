@@ -5,6 +5,7 @@ const { max } = require('moment');
 const Sequelize = require('sequelize');
 const AppError = require('../utils/errorHandle/appError');
 const catchAsync = require('../utils/errorHandle/catchAsync');
+require('dotenv').config();
 
 const Op = Sequelize.Op;
 // const model = require('../models/index')
@@ -55,7 +56,8 @@ const updateClass = catchAsync(async (req, res,next) => {
     console.log('curret class' + currentClass)
     console.log('current class + req.body',Object.assign(currentClass, req.body))
     console.log('req.body',req.body)
-    currentClass.save(); //Lưu class hiện tại
+    await currentClass.save(); //Lưu class hiện tại
+    
     res.status(200).json({
         status: 'success',
         data: currentClass
@@ -142,8 +144,8 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
             await Class.create({ class_id, client_id}, transaction(t));
             helperFn.sendEmail(
                 clientEmail,
-                'Congratulation',
-                'Congratulation , your registered class has been accepted'
+                process.env.SUCCESS_CLASS,
+                process.env.SUCCESS_CLASS_DES,
             )
         }
 
@@ -157,8 +159,8 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
             );
             helperFn.sendEmail(
                 clientEmail,
-                'Cancel Class',
-                'Your registered class has been cancel'
+                process.env.FAIL_CLASS,
+                process.env.FAIL_CLASS_DES,
             )
         }
 

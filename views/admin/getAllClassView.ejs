@@ -22,7 +22,46 @@
         <div class="row">
             <form action="/api/classes?status=open" method="GET">
                 <div class="form-row">
-                    <div class="col-12 mt-3">All Classes</div>
+                  
+                  <% data.forEach((item)=> { %>
+                  <div>
+                    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                          <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              Account
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                              <a class="dropdown-item" href="/admin/updateUserPasswordView">Change password</a>
+                              <a class="dropdown-item" href="/admin/updateProfileView">Update Profile</a>
+                            </div>
+                          </li>
+                          <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="/api/classes/listRegisteredClass/" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              Registration submission 
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                              <a class="dropdown-item" href="/api/classes/listRegistration">List registration</a> 
+                            </div>
+                          </li>
+                          <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="/api/classes/listRegisteredClass/" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              Manage User
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                              <a class="dropdown-item" href="/api/classes/listRegistration">Create user</a> 
+                              <a class="dropdown-item" href="/admin/getClient">Get user</a>
+                              <a class="dropdown-item" 
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </nav>
+                  </div>
+                  <% }) %>
+                  <div class="col-12 mt-3">All Classes</div>
+                  <a href="/admin/createClassView" class="btn btn-primary  active" role="button" aria-pressed="true">Create Class</a>
                     <table class="table table-striped">
                         <thead>
                           <tr>
@@ -40,7 +79,7 @@
                         <tbody>
                         <% data.forEach((item)=> { %>
                           <tr>
-                            <th scope="row">1</th>
+                            <th scope="row"><%= item.class_id %></th>
                             <td><%= item.subject %></td>
                             <td><%= item.class_description %></td>
                             <td><%= item.week_day %></td>
@@ -50,8 +89,10 @@
                             <td><%= item.to %></td>
                             <td><%= item.status %></td>
                             <td>
-                                <a href="/updateMeView/<%=item.class_id %>">Edit</a> <br />
-                                <a href="/api/admin/delete/<%=item.class_id %>">Delete</a>
+                                <a href="/website/updateMeView/<%=item.class_id %>">Edit</a> <br />
+                                <a href="/admin/delete/<%=item.class_id %>">Delete</a>
+                                </br>
+                                <a href="/admin/viewClients/<%=item.class_id %>">View clients</a>
                               </td>
                           </tr>
                         <% }) %>
