@@ -43,6 +43,7 @@ const updateUserPassword = catchAsync(async (req, res,next) => {
         where: {user_email: user_email}
     })
     const checkPass = await helperFn.comparePassword(oldPass,user.password);
+
     if(!checkPass) {
         return next(new AppError('please provide a password',400));
     }
@@ -50,10 +51,8 @@ const updateUserPassword = catchAsync(async (req, res,next) => {
     const hashPass = await bcrypt.hash(newPass,8);
     user.password = hashPass;
     await user.save();
-    
-    res.status(200).json({
-        status: 'success',
-    });
+
+    helperFn.returnSuccess(req, res);
 });
 const updateUserPasswordView = (req, res) => {
     // if(!req.isAuthenticated()) {return res.redirect('/admin/loginView')};
@@ -83,8 +82,8 @@ const updateUser = catchAsync(async (req, res,next) => {
     }
     if(phonenumber) user.phonenumber = phonenumber;
     if(age) user.age = age;
+
     await user.save();
-    console.log(res)
     helperFn.returnSuccess(req,res,user);
 })
 
@@ -143,10 +142,7 @@ const updateClass = catchAsync(async (req, res,next) => {
     Object.assign(currentClass, req.body); //gán vào object currentClas
     await currentClass.save(); //Lưu class hiện tại
 
-    res.status(200).json({
-        status: 'success',
-        data: currentClass
-    })
+    helperFn.returnSuccess(req, res,currentClass)
 })
 
 const deleteClass = catchAsync(async (req, res,next) => {
@@ -161,10 +157,8 @@ const deleteClass = catchAsync(async (req, res,next) => {
     }
 
     await currentClass.destroy();
-    // res.status(200).json({
-    //     status: 'success',
-    //     message: 'Class deleted successfully'
-    // })
+
+    helperFn.returnSuccess(req, res,'Class deleted successfully')
 
     res.redirect('/admin/allClass');
 })
@@ -176,10 +170,7 @@ const findClass = catchAsync(async (req, res,next) => {
         return next(new AppError('No class founded '), 404);
     }
 
-    res.status(200).json({
-        status: 'success',
-        data: currentClass
-    })
+    helperFn.returnSuccess(req, res,currentClass)
 })
 const viewClientsInClass = catchAsync(async (req, res, next) => {
     const id = req.params.class_id;
@@ -227,10 +218,8 @@ const getListRegisterClass = catchAsync(async (req, res, next)=>{
     }else {
         listRegis = await Regis.findAll();
     }
-    // res.status(200).json({
-    //     status: 'success',
-    //     data: listRegis,
-    // });
+    
+    helperFn.returnSuccess(req, res,listRegis);
 
     res.render('admin/getListRegisterView.ejs',{data:listRegis});
 })
@@ -254,10 +243,7 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
         const currentClass = await Class.findOne({
             where: { class_id : class_id},
         });
-        
-        console.log('currentRegis',currentRegis)
         const clientEmail = currentRegis.Client.client_email;
-        
         const max_students = currentClass.max_students;
         const currentStudent = currentClass.current_student;
 
@@ -302,9 +288,7 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
                 'Your registered class has been cancel'
             )
         }
-        res.status(200).json({
-            status: 'success',
-        })
+        helperFn.returnSuccess(req, res)
     })
     // res.redirect('/api/classes/listRegistered')
 })

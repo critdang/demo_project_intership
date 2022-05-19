@@ -10,7 +10,7 @@ exports.generateToken = (key,time) => {
         expiresIn: time, 
     });
 };
-exports.returnSuccess = (req,res,data) => {
+exports.returnSuccess = (req,res,data = "nothing") => {
   res.status(200).json({
     status: 'success',
     data:data,

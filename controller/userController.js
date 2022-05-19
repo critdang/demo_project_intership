@@ -16,20 +16,14 @@ const getUser = async(req, res) => {
     const user = await User.findAll({
     })
 
-    res.status(200).json({
-        status: 'success',
-        data: user,
-    })
+    helperFn.returnSuccess(req, res, user)
 }
 const idUser = async(req, res) => {
     const user = await User.findAll({
         where: { user_id: req.params.id },
     })
 
-    res.status(200).json({
-        status: 'success',
-        data: user,
-    })
+    helperFn.returnSuccess(req, res,user)
 }
 const postCRUD = async (req, res) => {
     await User.create({
@@ -38,11 +32,8 @@ const postCRUD = async (req, res) => {
         password: req.body.password,
     })
 
-    res.status(200).json({
-        status: 'success',
-        message: 'please check your email to confirm within 3 minutes ',
-        data: req.body,
-    })
+
+    helperFn.returnSuccess(req, res,'please check your email to confirm within 3 minutes ')
 }
 const getCRUD = async (req, res) => {
     return res.render('crud.ejs');
@@ -64,12 +55,10 @@ const getAllClassOpen = catchAsync(async (req, res) => {
     const allClass = await Class.findAll({
         where: Filter
     })
-    // res.status(200).json({
-    //     status: 'success',
-    //     data: allClass,
-    // });
 
-    return res.render('admin/getAllClassView.ejs',{data:allClass});
+    helperFn.returnSuccess(req, res,allClass)
+
+    res.render('admin/getAllClassView.ejs',{data:allClass});
     
 });
 

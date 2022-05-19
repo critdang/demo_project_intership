@@ -25,10 +25,8 @@ const getAllClass = catchAsync(async (req, res) => {
     const allClass = await Class.findAll({
         where: Filter
     })
-    res.status(200).json({
-        status: 'success',
-        data: allClass,
-    });
+
+    helperFn.returnSuccess(req, res, allClass);
 });
 
 const createClass = catchAsync(async (req, res,next) => {
@@ -39,10 +37,9 @@ const createClass = catchAsync(async (req, res,next) => {
         from, 
         to
     });
-    res.status(200).json({
-        status:'success',
-        data: newClass,
-    })
+    
+    helperFn.returnSuccess(req, res, newClass)
+
 }) 
 
 const updateClass = catchAsync(async (req, res,next) => {
@@ -58,10 +55,7 @@ const updateClass = catchAsync(async (req, res,next) => {
     console.log('req.body',req.body)
     await currentClass.save(); //Lưu class hiện tại
     
-    res.status(200).json({
-        status: 'success',
-        data: currentClass
-    })
+    helperFn.returnSuccess(req, res,currentClass)
 })
 const deleteClass = catchAsync(async (req, res,next) => {
     const classId = req.params.id;
@@ -76,10 +70,7 @@ const deleteClass = catchAsync(async (req, res,next) => {
 
     await currentClass.destroy();
     
-    res.status(200).json({
-        status: 'success',
-        message: 'Class deleted successfully'
-    })
+    helperFn.returnSuccess(req, res,'Class deleted successfully')
 })
 
 const findClass = catchAsync(async (req, res,next) => {
@@ -88,10 +79,8 @@ const findClass = catchAsync(async (req, res,next) => {
     if (!currentClass) {
         return next(new AppError('No class founded '), 404);
     }
-    res.status(200).json({
-        status: 'success',
-        data: currentClass
-    })
+
+    helperFn.returnSuccess(req, res,currentClass)
 })
 
 const getMyRegisClass = catchAsync(async (req, res, next)=>{
@@ -164,9 +153,8 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
             )
         }
 
-        res.status(200).json({
-            status: 'success',
-        })
+
+        helperFn.returnSuccess(req, res)
     })
 })
 module.exports = {
