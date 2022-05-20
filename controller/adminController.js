@@ -127,7 +127,7 @@ const createClass = catchAsync(async (req, res,next) => {
         to,
     });
 
-    helperFn.returnSuccess(req, res,newClass)
+    helperFn.returnSuccess(req, res,newClass);
 }) 
 const createClassView = async (req, res) => {
     return res.render('admin/createClassView.ejs');
@@ -142,7 +142,7 @@ const updateClass = catchAsync(async (req, res,next) => {
     Object.assign(currentClass, req.body); //gán vào object currentClas
     await currentClass.save(); //Lưu class hiện tại
 
-    helperFn.returnSuccess(req, res,currentClass)
+    helperFn.returnSuccess(req, res,currentClass);
 })
 
 const deleteClass = catchAsync(async (req, res,next) => {
@@ -158,7 +158,7 @@ const deleteClass = catchAsync(async (req, res,next) => {
 
     await currentClass.destroy();
 
-    helperFn.returnSuccess(req, res,'Class deleted successfully')
+    // helperFn.returnSuccess(req, res,'Class deleted successfully')
 
     res.redirect('/admin/allClass');
 })
@@ -187,12 +187,9 @@ const viewClientsInClass = catchAsync(async (req, res, next) => {
         ]
     })
 
-    if (!data) {
-        // helperFn.returnFail(req,res,'No client was found')
-    }
-    res.json({data:data})
-    // helperFn.returnSuccess(req,res,data)
-    // res.render('class/viewClientsInClass.ejs',{data:[data]})
+    // helperFn.returnSuccess(req,res,data);
+
+    res.render('class/viewClientsInClass.ejs',{data:[data]});
 
 })          
 const viewClientsInClassView = async (req, res, next) => {
@@ -219,7 +216,7 @@ const getListRegisterClass = catchAsync(async (req, res, next)=>{
         listRegis = await Regis.findAll();
     }
     
-    helperFn.returnSuccess(req, res,listRegis);
+    // helperFn.returnSuccess(req, res,listRegis);
 
     res.render('admin/getListRegisterView.ejs',{data:listRegis});
 })
@@ -288,9 +285,9 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
                 'Your registered class has been cancel'
             )
         }
-        helperFn.returnSuccess(req, res)
+        // helperFn.returnSuccess(req, res);
     })
-    // res.redirect('/api/classes/listRegistered')
+    res.redirect('/api/classes/listRegistered');
 })
 module.exports = {
     login: login,

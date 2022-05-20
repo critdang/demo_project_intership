@@ -4,15 +4,15 @@ const router = express.Router();
 const validate = require('../validate/validate');
 const clientController = require('../controller/clientController');
 const auth = require('../middleware/auth');
-let initWebRoutes = (app) => {
+let initClientRoutes = (app) => {
     // get all clients
     router.get("/allclients", clientController.getClient);
     // get id clients
     router.get("/api/client/:id",auth.protectingRoutes, clientController.idClient);
     // signup
-    router.post("/post-crud", validate.signUpValidate, clientController.postCRUD);
+    router.post("/create-client", validate.signUpValidate, clientController.createClient);
     // load signup view
-    router.get("/signup" , clientController.signup);
+    router.get("/signup-view" , clientController.signupView);
     // login
     router.post('/login', auth.loginLimiter, clientController.login);
     // load login view
@@ -33,20 +33,20 @@ let initWebRoutes = (app) => {
     // websiteView
     router.get('/websiteView',clientController.websiteView);
     // create Regis
-    router.get('/Regis',clientController.regis);
+    router.get('/regis',clientController.regis);
     // calender
     
-    router.get('/api/calender/:client_id',clientController.registration);
+    router.get('/calender/:client_id',clientController.registration);
     // cancelRegis
-    router.get('/api/cancelRegis/:reg_id',clientController.cancelRegistration);
-    router.get('/api/getOpenClass/:client_id',clientController.getOpenClass);
-    router.get('/api/registClass/:client_id/:class_id',clientController.regis);
+    router.get('/cancelRegis/:reg_id',clientController.cancelRegistration);
+    router.get('/getOpenClass/:client_id',clientController.getOpenClass);
+    router.get('/registClass/:client_id/:class_id',clientController.regis);
     // show registed class
-    router.get('/api/registedClass/:client_id',clientController.registedClass);
+    router.get('/registedClass/:client_id',clientController.registedClass);
 
     return app.use("/client",router);
 }
 
-module.exports = initWebRoutes;
+module.exports = initClientRoutes;
 
 // module.exports = router; nếu không có declar function init

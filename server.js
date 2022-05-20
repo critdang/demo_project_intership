@@ -18,9 +18,9 @@ require('dotenv').config();
 // cron.schedule('*/1 * * * * *',reminder) // run every minutes
 // route
 // const userRouters = require('./routes/route') khi không có initWebRoutes
-const initWebRoutes = require('./routes/web');
+const initClientRoutes = require('./routes/clientRouter');
 const initClassRoutes = require('./routes/classRouter');
-const initAdminRouter = require('./routes/adminRouter');
+const initAdminRoutes = require('./routes/adminRouter');
 const app = express();
 app.use(cors());
 
@@ -66,9 +66,9 @@ viewEngine(app);
 // app.use('/clientCrud',clientRouters)//gói vào initWebRoutes
 
 //import route
-initWebRoutes(app);
+initClientRoutes(app);
 initClassRoutes(app);
-initAdminRouter(app);
+initAdminRoutes(app);
 
 // listen port
 const PORT = process.env.PORT || 3000;

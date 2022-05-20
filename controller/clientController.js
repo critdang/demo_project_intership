@@ -17,7 +17,7 @@ const getClient = async(req, res) => {
         attributes: { exclude: ['password', 'countLogin', 'isActive'] },
     })
 
-    helperFn.returnSuccess(req, res, client)
+    helperFn.returnSuccess(req, res, client);
 
     res.render('admin/viewClients',{data: client});
 }
@@ -27,21 +27,21 @@ const idClient = async(req, res) => {
         attributes: { exclude: ['password', 'countLogin', 'isActive'] },
     });
 
-    helperFn.returnSuccess(req, res, client)
+    helperFn.returnSuccess(req, res, client);
 
     res.render("website/websiteView",{ data: client});
 }
 
-const postCRUD = catchAsync(async (req, res,next) => {
+const createClient = catchAsync(async (req, res,next) => {
     const {firstName,client_email,password} = req.body;
     const emailExists = await Client.findOne({where: {client_email: client_email}});
 
-    if(emailExists) {res.json("Email already existed ")}
+    if(emailExists) {res.json("Email already existed ")};
     await Client.create({
         firstName,
         client_email,
         password,
-    })
+    });
     
     const token = helperFn.generateToken({client_email}, '3m');
 
@@ -53,10 +53,10 @@ const postCRUD = catchAsync(async (req, res,next) => {
         token,
     );
 
-    helperFn.returnSuccess(req, res, token)
+    helperFn.returnSuccess(req, res, token);
 });
 
-const signup = async (req, res) => {
+const signupView = async (req, res) => {
     return res.render('website/signup.ejs');
 }
 
@@ -71,7 +71,7 @@ const login = catchAsync(async (req, res,next) => {
 
     if(!client) {
         return next(new AppError(`your email is not correct`,400));
-    }
+    };
     // get all params client
     const {
         password,
@@ -85,20 +85,20 @@ const login = catchAsync(async (req, res,next) => {
                 'your account has been disabled or not active yet , please contact admin',
                 400
         ))
-    }
+    };
     const wrongPassword = await helperFn.comparePassword(inputPassword,password);
     if(!wrongPassword) {
         await client.increment('countLogin');
         await client.save();
         return next(new AppError('your password not correct', 400));
-    }
+    };
     const token = helperFn.generateToken({ client_id:client.client_id},'1d');
     client.countLogin = 0;
 
     await client.save(); //save database by sequelize
     // helperFn.returnSuccess(req,res,client);
     
-    res.render("website/websiteView",{ data: [client],token:token})
+    res.render("website/websiteView",{ data: [client],token:token});
 });
 const loginView = async(req, res) => {
     return res.render('website/login.ejs');
@@ -106,7 +106,7 @@ const loginView = async(req, res) => {
 const verifyClientEmail = catchAsync(async(req, res,next) => {
     const token = req.params.token;
      // verify makes sure that the token hasn't expired and has been issued by us
-    const decodedToken = await jwt.verify(token, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const client = await Client.findOne({
         attribute: ['client_id','isActive'],
         where: {
@@ -119,7 +119,7 @@ const verifyClientEmail = catchAsync(async(req, res,next) => {
     client.isActive = true;
     await client.save();
 
-    helperFn.returnSuccess(req, res, 'success. Your email has been actived')
+    helperFn.returnSuccess(req, res, 'success. Your email has been actived');
 })
 
 const updateClientPassword = catchAsync(async (req, res,next) => {
@@ -129,8 +129,7 @@ const updateClientPassword = catchAsync(async (req, res,next) => {
         where: {client_id: client_id}
         // where: {client_email: client_email}
     })
-    console.log('req client',req.client)
-    const checkPass = await helperFn.comparePassword(oldPass,client.password)
+    const checkPass = await helperFn.comparePassword(oldPass,client.password);
     // console.log('check pass',checkPass)
     // console.log('client password',client.password)
     // console.log('old password',oldPass)
@@ -178,8 +177,9 @@ const updateMe = catchAsync(async (req, res,next) => {
 
     await client.save();
 
-    helperFn.returnSuccess(req, res,client);
-    res.redirect("/admin/getClient")
+    // helperFn.returnSuccess(req, res,client);
+
+    res.redirect("/admin/getClient");
 })
 const deleteClient = catchAsync(async (req, res) => {
     client_id = req.params.client_id;
@@ -188,7 +188,7 @@ const deleteClient = catchAsync(async (req, res) => {
     })
     await client.destroy();
 
-    helperFn.returnSuccess(req, res,'Client deleted successfully')
+    // helperFn.returnSuccess(req, res,'Client deleted successfully')
 
     res.redirect('/admin/getClient');
 })
@@ -197,10 +197,10 @@ const updateMeView = (req, res) => {
     res.render('website/updateMeView.ejs',
     {data : req.params}
     )
-}
+};
 const websiteView = async(req, res) => {
     res.render('website/websiteView.ejs');
-}
+};
 const regis = async (req, res) => {
     client_id = req.params.client_id;
     class_id = req.params.class_id;
@@ -209,7 +209,7 @@ const regis = async (req, res) => {
             client_id: client_id,
             class_id: class_id
         }
-    })
+    });
 
     if(regisExists) {
         res.json("Your registration has been already existed ")
@@ -219,10 +219,9 @@ const regis = async (req, res) => {
     const data = await Regis.create({
         client_id,
         class_id,
-    })
+    });
 
-    helperFn.returnSuccess(req, res, data)
-
+    helperFn.returnSuccess(req, res, data);
 }
 const registration = catchAsync(async(req, res) => {
     // class_id = req.params.class_id
@@ -234,13 +233,13 @@ const registration = catchAsync(async(req, res) => {
             model: Class,
             attributes: ['class_id','subject','from','to']
         }
-    })
+    });
 
     if(!regis) {
         res.send('does not have registration');
     }
 
-    helperFn.returnSuccess(req, res)
+    // helperFn.returnSuccess(req, res)
 
     res.render("website/cancelRegistrationView",{ data: [regis]});
 })
@@ -253,19 +252,18 @@ const cancelRegistration = catchAsync(async (req, res) => {
     await data.destroy();
     await data.save();
 
-    helperFn.returnSuccess(req, res)
+    // helperFn.returnSuccess(req, res,data);
 
     res.redirect('api/calender');
 })
 
 const getOpenClass = catchAsync(async (req, res) => {
     client_id = req.params.client_id;
-    console.log(client_id);
     const data = await Class.findOne({
         where: {status: 'open'},
     })
 
-    helperFn.returnSuccess(req,res,client_id);
+    // helperFn.returnSuccess(req,res,client_id);
 
     res.render('website/registView',{data:[data],client_id:client_id});
 })
@@ -274,7 +272,7 @@ const registedClass = catchAsync(async (req, res) => {
     client_id = req.params.client_id;
 
     const data = await Regis.findOne({
-        where: {client_id: client_id, status: 'active'},
+        where: {client_id: client_id, status: 'pending'},
         include: [
             {
                 model: Class,
@@ -282,16 +280,15 @@ const registedClass = catchAsync(async (req, res) => {
             }   
         ]
     })
-
-    helperFn.returnSuccess(req, res, data)
-
-    res.render('website/registedClass',{data:[data]});
+    
+    helperFn.returnSuccess(req, res, data);
+    if(!data) res.render('website/registedClass',{data:[data]});
 })
 module.exports = {
     getClient: getClient,
     idClient: idClient,
-    postCRUD: postCRUD,
-    signup:signup,
+    createClient: createClient,
+    signupView:signupView,
     login:login,
     loginView:loginView,
     verifyClientEmail:verifyClientEmail,

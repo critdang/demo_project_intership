@@ -39,8 +39,6 @@ let initAdminRouter = (app) => {
 
     router.get('/getClient', clientController.getClient);
     return app.use("/admin",router);
-
-
 }
 
 module.exports = initAdminRouter;
