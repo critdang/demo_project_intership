@@ -7,24 +7,12 @@ const adminController = require('../controller/adminController');
 const auth = require('../middleware/auth');
 let initClassRoutes = (app) => {
     // admin
-    router
-        .route('/')
-        .get(adminController.getAllClass)
-        .post(
-            validate.classValidate,
-            adminController.createClass
-          );
-        //   auth.protectingRoutes,
-    router
-        .route('/:id')
-        .patch(
-            auth.protectingRoutes,
-            validate.classValidate,
-            adminController.updateClass
-        )
-        .delete(auth.protectingRoutes, adminController.deleteClass);
-    router.get('/findclass/:id',adminController.findClass
-    )
+    router.get('/',adminController.getAllClass)
+    router.post('/',validate.classValidate,adminController.createClass);
+    //   auth.protectingRoutes,
+    router.patch('/:id',auth.protectingRoutes,validate.classValidate,adminController.updateClass)
+    router.delete('/:id',auth.protectingRoutes, adminController.deleteClass);
+    router.get('/findclass/:id',adminController.findClass);
     // auth.protectingRoutes,
     router.get('/submitRegistration',adminController.submitClassRegistration);
     // auth.protectingRoutes,
@@ -33,7 +21,7 @@ let initClassRoutes = (app) => {
     router.get('/viewClients/:class_id',adminController.viewClientsInClass);
     // auth.protectingRoutes,
     // client - user
-    router.delete('/delete/:id',auth.protectingRoutes,adminController.deleteClass)
+    router.delete('/delete/:id',auth.protectingRoutes,adminController.deleteClass);
     return app.use("/api/classes",router);
 }
 

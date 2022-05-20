@@ -5,7 +5,7 @@ let configViewEngine = (app) => {
     app.use(express.static("./public"));
     app.set("view engine","ejs");
     // đườn link lấy view engine
-    app.set("views","./views")
+    app.set("views","./views");
 }
 
 module.exports = configViewEngine

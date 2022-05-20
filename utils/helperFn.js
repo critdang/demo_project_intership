@@ -22,7 +22,7 @@ exports.returnFail = (req,res,err) => {
     status: 'fail',
     err:err,
   });
-}
+};
 
 exports.sendEmail = async (
     clientEmail,

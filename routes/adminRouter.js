@@ -1,19 +1,19 @@
 // const User = require('../models').User; 
 const express = require('express');
 const router = express.Router();
-const validate = require('../validate/validate')
-const adminController = require('../controller/adminController')
-const userController = require('../controller/userController')
-const clientController = require('../controller/clientController')
-const auth = require('../middleware/auth')
-const passport = require('passport')
+const validate = require('../validate/validate');
+const adminController = require('../controller/adminController');
+const userController = require('../controller/userController');
+const clientController = require('../controller/clientController');
+const auth = require('../middleware/auth');
+const passport = require('passport');
 let initAdminRouter = (app) => {
 
     // router.patch('/updateMe',clientController.uploadAvatar,clientController.updateMe)
     // router.post('/',
     // passport.authenticate('local',{failureRedirect:'/login'}));
     
-    router.post('/login',  adminController.login)
+    router.post('/login',  adminController.login);
     // update password
     router.post('/updateUserPassword',adminController.updateUserPassword);
     // updateUser
