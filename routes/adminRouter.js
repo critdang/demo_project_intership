@@ -12,7 +12,7 @@ let initAdminRouter = (app) => {
     // router.patch('/updateMe',clientController.uploadAvatar,clientController.updateMe)
     // router.post('/',
     // passport.authenticate('local',{failureRedirect:'/login'}));
-    
+    // api
     router.post('/login',  adminController.login);
     // update password
     router.post('/updateUserPassword',adminController.updateUserPassword);
@@ -20,6 +20,7 @@ let initAdminRouter = (app) => {
     router.patch('/updateUser',adminController.uploadAvatar,adminController.updateUser);
     router.get('/allClass',adminController.getAllClass);
     router.get('/delete/:id',adminController.deleteClass);
+    router.post('/createClass',adminController.createClass);
 
     // view
     router.get('/loginView',adminController.loginAdminView);

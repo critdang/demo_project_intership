@@ -10,9 +10,9 @@ let initClientRoutes = (app) => {
     // get id clients
     router.get("/api/client/:id",auth.protectingRoutes, clientController.idClient);
     // signup
-    router.post("/create-client", validate.signUpValidate, clientController.createClient);
+    router.post("/create", validate.signUpValidate, clientController.createClient);
     // load signup view
-    router.get("/signup-view" , clientController.signupView);
+    router.get("/signupView" , clientController.signupView);
     // login
     router.post('/login', auth.loginLimiter, clientController.login);
     // load login view

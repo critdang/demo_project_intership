@@ -31,8 +31,8 @@ const login = async (req, res,next) => {
     if(!wrongPassword) {
         return next(new AppError('your password not correct', 400));
     }
-
-    res.redirect('/admin/allClass');
+    helperFn.returnSuccess(req, res);
+    // res.redirect('/admin/allClass');
 }
 const loginAdminView = (req, res) => {
     return res.render('admin/login.ejs');
@@ -108,9 +108,9 @@ const getAllClass = catchAsync(async (req, res) => {
     const allClass = await Class.findAll({
         where: Filter
     })
-    // helperFn.returnSuccess(req, res,allClass)
+    helperFn.returnSuccess(req, res,allClass)
 
-    return res.render('admin/getAllClassView.ejs',{data:allClass});
+    // return res.render('admin/getAllClassView.ejs',{data:allClass});
     
 });
 const getAllClassView = async (req, res) => {
@@ -126,7 +126,7 @@ const createClass = catchAsync(async (req, res,next) => {
         from, 
         to,
     });
-
+    if(!newClass) helperFn.returnFail(req,res);
     helperFn.returnSuccess(req, res,newClass);
 }) 
 const createClassView = async (req, res) => {
