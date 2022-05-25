@@ -49,9 +49,10 @@ exports.sendEmail = async (
     };
     await transporter.sendMail(mailOption);
 };
+
 exports.comparePassword = async (inputPassword, userPassword) => {
     return await bcrypt.compare(inputPassword, userPassword);
-  };
+};
 
 
 // setting for image upload

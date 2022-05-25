@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const AppError = require('../utils/errorHandle/appError');
 
 const signUpValidateMethod = Joi.object({
     firstName: Joi.string()
@@ -26,18 +27,20 @@ const signUpValidateMethod = Joi.object({
         }),
     password: Joi.string()
     .regex(/^[a-zA-Z0-9]{6,30}$/)
-    .required(),
-    // .error(
-    //     new AppError('invalid password , must contain at least 6 characters', 400)
-    // ),
+    .required()
+    .error(
+        new AppError('invalid password , must contain at least 6 characters', 400)
+    ),
     
     client_email: Joi.string()
     .email({
         minDomainSegments: 2,
         tlds: { allow: ['com', 'net'] },
     })
-    .required(),
-    // phone: phone.string().phoneNumber(),
+    .required()
+    .error(
+        new AppError('invalid password , must contain at least 6 characters', 400)
+    ),
     lastName: Joi.string(),
 })
 const classSchema = Joi.object({

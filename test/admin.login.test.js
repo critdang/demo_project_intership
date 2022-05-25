@@ -12,18 +12,17 @@ describe('Post Endpoints', () => {
   })
 })
 
-describe('Get All Class', () => {
+describe('Get Endpoints', () => {
   it('get All Class', async () => {
     const res = await request(app)
       .get('/admin/allClass')
       .send({
       })
-      console.log(res)
     expect(res.statusCode).toEqual(200)
   })
 })
 
-describe('Create class', () => {
+describe('Post Endpoints', () => {
   it('Create class', async () => {
     const res = await request(app)
       .post('/admin/createClass')
@@ -33,7 +32,21 @@ describe('Create class', () => {
         from: '2022-05-26',
         to: '2022-06-29'
       })
-      console.log(res)
     expect(res.statusCode).toEqual(200)
   })
 })
+
+describe('Post Endpoints', () => {
+  it('Update class', async () => {
+    const res = await request(app)
+      .post('/admin/createClass')
+      .send({
+        subject: 'test1',
+        max_students: 10,
+        from: '2022-05-26',
+        to: '2022-06-29'
+      })
+    expect(res.statusCode).toEqual(200)
+  })
+})
+

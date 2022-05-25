@@ -34,9 +34,14 @@ const idClient = async(req, res) => {
 
 const createClient = catchAsync(async (req, res,next) => {
     const {firstName,client_email,password} = req.body;
+    if(!firstName || !client_email || !password) {
+        return res.status(400).json("Fill out completely");
+    }
+    console.log('firstName,client_email,password',firstName,client_email,password)
     const emailExists = await Client.findOne({where: {client_email: client_email}});
-
-    if(emailExists) {res.json("Email already existed ")};
+    if(emailExists) {return res.status(400).json("Email already existed ")};
+    
+    if(!client_email) return next(new AppError(`Please provide email and !`,400))
     await Client.create({
         firstName,
         client_email,
