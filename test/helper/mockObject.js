@@ -1,6 +1,6 @@
 const mockUser = {
-    client_email: 'user@gmail.com',
-    password: '123456',
+    client_email: 'signup@gmail.com',
+    password: '12345S6',
     firstName: 'test',
     isActive: '1'
   };

@@ -13,13 +13,12 @@ const cloudinary = require('cloudinary')
 require('dotenv').config();
 
 const getClient = async(req, res) => {
-    const client = await Client.findAll({
+    const data = await Client.findAll({
         attributes: { exclude: ['password', 'countLogin', 'isActive'] },
     })
 
-    helperFn.returnSuccess(req, res, client);
-
-    res.render('admin/viewClients',{data: client});
+    // helperFn.returnSuccess(req, res, data);
+    res.render('admin/viewClients',{data});
 }
 const idClient = async(req, res) => {
     const client = await Client.findOne({
@@ -28,7 +27,6 @@ const idClient = async(req, res) => {
     });
 
     helperFn.returnSuccess(req, res, client);
-
     res.render("website/websiteView",{ data: client});
 }
 
@@ -99,18 +97,25 @@ const login = catchAsync(async (req, res,next) => {
     };
     const token = helperFn.generateToken({ client_id:client.client_id},'1d');
     client.countLogin = 0;
-
     await client.save(); //save database by sequelize
+    res.cookie('jwt',token, { httpOnly: true, secure: true, maxAge: 3600000 });
+
     // helperFn.returnSuccess(req,res,client);
-    
-    res.render("website/websiteView",{ data: [client],token:token});
+        res.render("website/websiteView",{ data: [client],token:token});
 });
 const loginView = async(req, res) => {
     return res.render('website/login.ejs');
 }
+
+const logout = (req, res) => {
+    req.logout();
+    res.redirect('/client/loginView');
+}
+
 const verifyClientEmail = catchAsync(async(req, res,next) => {
     const token = req.params.token;
      // verify makes sure that the token hasn't expired and has been issued by us
+    try{
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const client = await Client.findOne({
         attribute: ['client_id','isActive'],
@@ -123,7 +128,10 @@ const verifyClientEmail = catchAsync(async(req, res,next) => {
     }
     client.isActive = true;
     await client.save();
-
+}catch (err) {
+    if(err.name ==='TokenExpiredError')
+    return next(new AppError('Your token has expired',401));
+}
     helperFn.returnSuccess(req, res, 'success. Your email has been actived');
 })
 
@@ -218,7 +226,7 @@ const regis = async (req, res) => {
 
     if(regisExists) {
         res.json("Your registration has been already existed ")
-        regisExists.destroy();
+        await regisExists.destroy();
     }
     
     const data = await Regis.create({
@@ -248,36 +256,57 @@ const registration = catchAsync(async(req, res) => {
 
     res.render("website/cancelRegistrationView",{ data: [regis]});
 })
-const cancelRegistration = catchAsync(async (req, res) => {
-    reg_id = req.params.reg_id;
-    
-    const data = await Regis.findOne({
-        where: {reg_id: reg_id}
+
+const getPendingClass = catchAsync(async (req, res) => {
+    client_id = req.params.client_id;
+    const data = await Regis.findAll({
+        where: {client_id,status:'pending'},
+        include: {
+            model: Class,
+            attributes: ['class_id','subject','from','to']
+        }
     })
-    await data.destroy();
-    await data.save();
+    // helperFn.returnSuccess(req,res,data);
+    res.render('website/cancelRegisView',{data,client_id});
+})
 
-    // helperFn.returnSuccess(req, res,data);
+const cancelRegistration = catchAsync(async (req, res) => {
+    class_id = req.params.class_id;
+    client_id = req.params.client_id;
+    const cancelRegis = await Regis.findOne({
+        where: {
+            class_id, 
+            client_id,
+            status:'pending'}
+    })
+    // if (!cancelRegis) {
+    //     return next(new AppError(`Not pending , can not cancel`, 400));
+    //   }
+    cancelRegis.status = 'cancel';
+    await cancelRegis.save();
+    helperFn.returnSuccess(req, res,cancelRegis);
 
-    res.redirect('api/calender');
+    // res.redirect("website/cancelRegisView",{cancelRegis:cancelRegis});
+
 })
 
 const getOpenClass = catchAsync(async (req, res) => {
     client_id = req.params.client_id;
-    const data = await Class.findOne({
+    const data = await Class.findAll({
         where: {status: 'open'},
+        limit: 5
     })
 
-    // helperFn.returnSuccess(req,res,client_id);
+    // helperFn.returnSuccess(req,res,data);
 
-    res.render('website/registView',{data:[data],client_id:client_id});
+    res.render('website/registView',{data,client_id});
 })
 
 const registedClass = catchAsync(async (req, res) => {
     client_id = req.params.client_id;
 
-    const data = await Regis.findOne({
-        where: {client_id: client_id, status: 'pending'},
+    const data = await Regis.findAll({
+        where: {client_id: client_id, status: 'active'},
         include: [
             {
                 model: Class,
@@ -286,8 +315,25 @@ const registedClass = catchAsync(async (req, res) => {
         ]
     })
     
-    helperFn.returnSuccess(req, res, data);
-    if(!data) res.render('website/registedClass',{data:[data]});
+    // helperFn.returnSuccess(req, res, data);
+    if(data) res.render('website/registedClass',{data});
+})
+const getCalenderClass = catchAsync(async (req, res) => {
+    const client_id = req.params.client_id;
+    const currentClass = await Regis.findAll({
+      where: { client_id, status: 'active'},
+      include: {
+          model: Class,
+          attributes: ['subject', 'from', 'to','week_day'],
+      }
+    });
+    if (!currentClass) {
+      return next(new AppError('this class does not exist', 404));
+    }
+    res.status(200).json({
+      status: 'success',
+      data: currentClass,
+    });
 })
 module.exports = {
     getClient: getClient,
@@ -296,6 +342,7 @@ module.exports = {
     signupView:signupView,
     login:login,
     loginView:loginView,
+    logout:logout,
     verifyClientEmail:verifyClientEmail,
     updateClientPassword:updateClientPassword,
     updateClientPasswordView:updateClientPasswordView,
@@ -306,7 +353,9 @@ module.exports = {
     deleteClient:deleteClient,
     cancelRegistration:cancelRegistration,
     registration:registration,
+    getPendingClass:getPendingClass,
     getOpenClass:getOpenClass,
     registedClass:registedClass,
+    getCalenderClass: getCalenderClass,
     regis:regis
 }

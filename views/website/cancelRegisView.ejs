@@ -16,11 +16,12 @@
 
     <!-- Latest compiled JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+
 </head>
 <body>
     <div class="container">
         <div class="row">
-            <form action="/api/client/" method="POST">
+            <form action="/cancelRegis/client/" method="POST">
                 <div class="form-row">
                     
                     <div class="col-12 mt-3">Registration class</div>
@@ -38,19 +39,20 @@
                           </tr>
                         </thead>
                         <tbody>
-                        <% data.forEach((item)=> { %>
+                        <% for(var i= 0; i<data.length; i++) { %>
                           <tr>
-                            <th scope="row">1</th>
-                            <td><%= item.Class.subject %></td>
-                            <td><%= item.Class.from %></td>
-                            <td><%= item.Class.to %></td>
-                            <td><%= item.status %></td>
-                            <td><%= item.regisDate %></td>
+                            <th scope="row"><%= i+1 %></th>
+                            <td><%= data[i].Class.subject %></td>
+                            <td><%= data[i].Class.from %></td>
+                            <td><%= data[i].Class.to %></td>
+                            <td><%= data[i].status %></td>
+                            <td><%= data[i].regisDate %></td>
                             <td>
-                                <a class="btn btn-warning" href="/api/cancelRegis/<%= item.reg_id %>">Cancel</a> <br />
+                                <a class="cancel-btn btn btn-warning" href="/client/<%=client_id%>/cancelRegis/<%= data[i].class_id %>">Cancel</a> 
+                                <br />
                               </td>
                           </tr>
-                        <% }) %>
+                        <% } %>
                         </tbody>
                       </table>
                 </div>

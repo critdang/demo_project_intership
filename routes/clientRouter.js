@@ -4,9 +4,13 @@ const router = express.Router();
 const validate = require('../validate/validate');
 const clientController = require('../controller/clientController');
 const auth = require('../middleware/auth');
+const passport = require('passport');
+
+require("../middleware/auth").authClient(passport)
+
 let initClientRoutes = (app) => {
     // get all clients
-    router.get("/allclients", clientController.getClient);
+    router.get("/allclients",passport.authenticate('client-local',{failureRedirect:'/admin/loginView'}) , clientController.getClient);
     // get id clients
     router.get("/api/client/:id",auth.protectingRoutes, clientController.idClient);
     // signup
@@ -14,11 +18,13 @@ let initClientRoutes = (app) => {
     // load signup view
     router.get("/signupView" , clientController.signupView);
     // login
-    router.post('/login', auth.loginLimiter, clientController.login);
+    router.post('/login', passport.authenticate('client-local',{failureRedirect:'/client/loginView'}), clientController.login);
+    // , auth.loginLimiter
+    router.get('/logout', clientController.logout);
     // load login view
-    router.get("/loginview", clientController.loginView);
+    router.get("/loginView", clientController.loginView);
     // verify email
-    router.get('/api/verify/:token', clientController.verifyClientEmail);
+    router.get('/verify/:token', clientController.verifyClientEmail);
     // update password
     router.post('/updateClientPassword/:client_id', clientController.updateClientPassword);
     //auth.protectingRoutes,
@@ -27,7 +33,7 @@ let initClientRoutes = (app) => {
     // upload image
     router.post('/uploadAvatar',clientController.uploadAvatar);
     // updateMe
-    router.post('/updateMe/:client_id',clientController.uploadAvatar,clientController.updateMe);
+    router.patch('/updateMe',clientController.uploadAvatar,clientController.updateMe);
     // updateMe view
     router.get('/updateMeView/:client_id',clientController.updateMeView);
     // websiteView
@@ -36,11 +42,13 @@ let initClientRoutes = (app) => {
     router.get('/regis',clientController.regis);
     // calender
     
-    router.get('/calender/:client_id',clientController.registration);
-    // cancelRegis
-    router.get('/cancelRegis/:reg_id',clientController.cancelRegistration);
-    router.get('/getOpenClass/:client_id',clientController.getOpenClass);
+    router.get('/:client_id/calender',clientController.getCalenderClass);
+    // regis Class
     router.get('/registClass/:client_id/:class_id',clientController.regis);
+    // cancelRegis
+    router.get('/getPendingClass/:client_id',clientController.getPendingClass);
+    router.get('/:client_id/cancelRegis/:class_id',clientController.cancelRegistration);
+    router.get('/getOpenClass/:client_id',clientController.getOpenClass);
     // show registed class
     router.get('/registedClass/:client_id',clientController.registedClass);
 

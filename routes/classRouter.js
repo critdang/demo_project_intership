@@ -2,12 +2,11 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../validate/validate');
-const userController = require('../controller/userController');
 const adminController = require('../controller/adminController');
 const auth = require('../middleware/auth');
 let initClassRoutes = (app) => {
     // admin
-    router.get('/',adminController.getAllClass)
+    router.get('/',auth.protectingRoutes,adminController.getAllClass)
     router.post('/',validate.classValidate,adminController.createClass);
     //   auth.protectingRoutes,
     router.patch('/:id',auth.protectingRoutes,validate.classValidate,adminController.updateClass)

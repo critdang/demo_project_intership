@@ -36,16 +36,16 @@
                           </tr>
                         </thead>
                         <tbody>
-                        <% data.forEach((item)=> { %>
+                        <% for(var i= 0; i<data.length; i++) { %>
                           <tr>
-                            <th scope="row">1</th>
-                            <td><%= item.Class.subject %></td>
-                            <td><%= item.Class.from %></td>
-                            <td><%= item.Class.to %></td>
-                            <td><%= item.status %></td>
-                            <td><%= item.regisDate %></td>
+                            <th scope="row"><%= i+1 %></th>
+                            <td><%= data[i].Class.subject %></td>
+                            <td><%= data[i].Class.from %></td>
+                            <td><%= data[i].Class.to %></td>
+                            <td><%= data[i].status %></td>
+                            <td><%= data[i].regisDate %></td>
                           </tr>
-                        <% }) %>
+                        <% } %>
                         </tbody>
                       </table>
                 </div>

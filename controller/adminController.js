@@ -31,13 +31,21 @@ const login = async (req, res,next) => {
     if(!wrongPassword) {
         return next(new AppError('your password not correct', 400));
     }
-    helperFn.returnSuccess(req, res);
-    // res.redirect('/admin/allClass');
+    // helperFn.returnSuccess(req, res);
+    res.redirect('/admin/allClass');
 }
+
 const loginAdminView = (req, res) => {
     return res.render('admin/login.ejs');
 }
+
+const logout = (req, res) => {
+    req.logout();
+    res.redirect('/admin/loginView');
+}
+
 const updateUserPassword = catchAsync(async (req, res,next) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/login');
     const { oldPass, newPass, user_email } = req.body;
     const user = await User.findOne({
         where: {user_email: user_email}
@@ -54,6 +62,7 @@ const updateUserPassword = catchAsync(async (req, res,next) => {
 
     helperFn.returnSuccess(req, res);
 });
+
 const updateUserPasswordView = (req, res) => {
     // if(!req.isAuthenticated()) {return res.redirect('/admin/loginView')};
     return res.render('admin/updateUserPasswordView.ejs');
@@ -68,6 +77,7 @@ cloudinary.config({
 })
 
 const updateUser = catchAsync(async (req, res,next) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
     const {phonenumber, age,user_id,user_email} = req.body;
     const user = await User.findOne({
         // where: {user_id: user_id},
@@ -88,14 +98,15 @@ const updateUser = catchAsync(async (req, res,next) => {
 })
 
 const updateProfileView = (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
     return res.render('admin/updateProfileView.ejs');
 }
 
 // CRUD class
 const getAllClass = catchAsync(async (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
     // localhost:8080/api/classes?status=open
     let checkStatus = ['open','pending']
-
     // if(req.query.status) {
     //     checkStatus = req.query.status.split(',')
     // }
@@ -108,17 +119,25 @@ const getAllClass = catchAsync(async (req, res) => {
     const allClass = await Class.findAll({
         where: Filter
     })
-    helperFn.returnSuccess(req, res,allClass)
+    // helperFn.returnSuccess(req, res,allClass)
 
-    // return res.render('admin/getAllClassView.ejs',{data:allClass});
+    return res.render('admin/getAllClassView.ejs',{data:allClass});
     
 });
 const getAllClassView = async (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
     return res.render('admin/getAllClassView.ejs');
 }
 
 const createClass = catchAsync(async (req, res,next) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
+
     const{subject, max_students, from, to } = req.body;
+    console.log(subject)
+    const existClass = await Class.findOne({
+        where: {subject}
+    })
+    if(existClass) return next(new AppError('Existed class in DB'),400);
 
     const newClass = await Class.create({
         subject,
@@ -126,29 +145,43 @@ const createClass = catchAsync(async (req, res,next) => {
         from, 
         to,
     });
+
     if(!newClass) helperFn.returnFail(req,res);
-    helperFn.returnSuccess(req, res,newClass);
+    // helperFn.returnSuccess(req, res,newClass);
+    res.redirect('/admin/allClass');
 }) 
 const createClassView = async (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
+
     return res.render('admin/createClassView.ejs');
 }
 const updateClass = catchAsync(async (req, res,next) => {
-    const classId = req.params.id;
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
 
-    const currentClass = await Class.findOne({ where: { class_id: classId}})
+    const class_id = req.params.class_id;
+
+    const currentClass = await Class.findOne({ where: {class_id:class_id}})
     if(!currentClass) {
         return next(new AppError('No class found with this id', 404));
     }
-    Object.assign(currentClass, req.body); //gán vào object currentClas
+    Object.assign(currentClass, req.body); //gán vào object currentClass
     await currentClass.save(); //Lưu class hiện tại
 
     helperFn.returnSuccess(req, res,currentClass);
 })
 
-const deleteClass = catchAsync(async (req, res,next) => {
-    const classId = req.params.id;
-    const currentClass = await Class.findOne({ where: {class_id: classId} });
+const updateClassView = catchAsync(async (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
 
+    res.render('admin/updateClassView.ejs',
+    {data : req.params})
+})
+
+const deleteClass = catchAsync(async (req, res,next) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
+
+    const class_id = req.params.class_id;
+    const currentClass = await Class.findOne({ where: {class_id:class_id} });
     if(!currentClass) {
         return next(new AppError('No class found with this id', 404));
     }
@@ -157,12 +190,13 @@ const deleteClass = catchAsync(async (req, res,next) => {
     }
 
     await currentClass.destroy();
-
     // helperFn.returnSuccess(req, res,'Class deleted successfully')
 
     res.redirect('/admin/allClass');
 })
 const findClass = catchAsync(async (req, res,next) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
+
     const id = req.params.id;
 
     const currentClass = await Class.findOne({ where: {class_id:id}});
@@ -173,29 +207,32 @@ const findClass = catchAsync(async (req, res,next) => {
     helperFn.returnSuccess(req, res,currentClass)
 })
 const viewClientsInClass = catchAsync(async (req, res, next) => {
-    const id = req.params.class_id;
-    const data = await Class.findOne({
-        where: { class_id: id },
-        attributes: [],
-        include: [
-            {
-                model: Regis,
-                through: {
-                    attributes: ['status']
-                }
+    if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
+
+    const class_id = req.params.class_id;
+    const data = await Regis.findAll({
+        where: { class_id },
+        through: [],
+        include:{
+            model: Client,
+            attributes: {
+                exclude: ['password','isActive', 'avatar','createdAt','updatedAt']
             }
-        ]
+        }
     })
-
+    
     // helperFn.returnSuccess(req,res,data);
-
-    res.render('class/viewClientsInClass.ejs',{data:[data]});
+    res.render('class/viewClientsInClass.ejs',{data});
 
 })          
 const viewClientsInClassView = async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/login');
+
     res.render ('class/viewClientsInClass.ejs');
 }
 const getListRegisterClass = catchAsync(async (req, res, next)=>{
+    if (!req.isAuthenticated()) return res.redirect('/admin/login');
+
     // pass to param: /api/classes/listRegistered?status=pending,active,cancel
     let listRegis;
 
@@ -221,6 +258,8 @@ const getListRegisterClass = catchAsync(async (req, res, next)=>{
     res.render('admin/getListRegisterView.ejs',{data:listRegis});
 })
 const submitClassRegistration = catchAsync(async (req, res, next)=>{
+    if (!req.isAuthenticated()) return res.redirect('/admin/login');
+
     const accept = 'accept';
     const reject = 'reject';
     const action = req.body.action;
@@ -285,23 +324,25 @@ const submitClassRegistration = catchAsync(async (req, res, next)=>{
                 'Your registered class has been cancel'
             )
         }
-        // helperFn.returnSuccess(req, res);
+        helperFn.returnSuccess(req, res);
     })
-    res.redirect('/api/classes/listRegistered');
+    // res.redirect('/api/classes/listRegistered');
 })
 module.exports = {
     login: login,
+    logout:logout,
     updateUserPassword:updateUserPassword,
+    updateUserPasswordView:updateUserPasswordView,
     uploadAvatar:uploadAvatar,
     updateUser:updateUser,
     loginAdminView:loginAdminView,
-    updateUserPasswordView:updateUserPasswordView,
     updateProfileView:updateProfileView,
     getAllClass:getAllClass,
     getAllClassView:getAllClassView,
     createClass:createClass,
     createClassView:createClassView,
     updateClass:updateClass,
+    updateClassView:updateClassView,
     deleteClass:deleteClass,
     findClass:findClass,
     viewClientsInClass:viewClientsInClass,

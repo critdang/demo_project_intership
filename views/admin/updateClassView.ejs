@@ -20,22 +20,30 @@
 <body>
     <div class="container">
         <div class="row">
-            <form action="/client/login" method="POST">
+            <form action="/admin/updateClass/<%= data.class_id%>" method="POST">
                 <div class="form-row">
-                    <div class="col-12 mt-3">Login view</div>
+                    <div class="col-12 mt-3">Update Class</div>
                     <div class="form-group col-6">
-                        <label for="client_email">Email</label>
-                        <input type="email" class="form-control"  placeholder="Email" name="client_email">
+                        <label for="subject"> Subject</label>
+                        <input type="text" class="form-control" name="subject" placeholder="Please input subject" value="">
                     </div>
                     <div class="form-group col-6">
-                        <label for="password">Password</label>
-                        <input type="password" class="form-control" name="password" placeholder="password">
+                        <label for="max_students">Max Students</label>
+                        <input type="text" class="form-control" name="max_students" placeholder="Please input max students">
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="from">From</label>
+                        <input type="date" class="form-control" name="from" placeholder="Please input FROM">
+                    </div>
+                    <div class="form-group col-6">
+                        <label for="to">To</label>
+                        <input type="date" class="form-control" name="to"
+                        placeholder="Please input TO">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Sign in</button>
+                <button type="submit" class="btn btn-primary">Update Class</button>
             </form>
         </div>
-        <p>If you don't have account yet. <a href="/client/signupView">Click here!</a></p>
     </div>
 </body>
 </html>

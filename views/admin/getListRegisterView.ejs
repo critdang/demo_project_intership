@@ -17,11 +17,12 @@
     <!-- Latest compiled JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
 </head>
 <body>
     <div class="container">
         <div class="row">
-            <form action="/api/classes/submitRegistration" method="POST">
                 <div class="form-row">
                     <div class="col-12 mt-3">List Registration</div>
                     <table class="table table-striped">
@@ -32,37 +33,44 @@
                             <th scope="col">Class id</th>
                             <th scope="col">Client id</th>
                             <th scope="col">Status</th>
+                            <th scope="col">Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                        <% data.forEach((item)=> { %>
+                          <% for(var i= 0; i<data.length; i++) { %>
+
                           <tr>
-                            <th scope="row">1</th>
-                            <td><%= item.regisDate %></td>
-                            <td><%= item.class_id %></td>
-                            <td><%= item.client_id %></td>
-                            <td><%= item.status %></td>
+                            <th scope="row"><%= i+1 %></th>
+                            <td><%= data[i].regisDate %></td>
+                            <td><%= data[i].class_id %></td>
+                            <td><%= data[i].client_id %></td>
+                            <td><%= data[i].status %></td>
                             <td>
-                                <p onClick="handleAccept(`<%= item.class_id %>`,`<%= item.client_id %>`, `accept`)">Accept</p> <br />
-                                <p onClick="handleReject(`<%= item.class_id %>`,`<%= item.client_id %>`, `reject`)">Reject</p> <br />
+                              <%if(data[i].status == 'pending'){%>
+                                <button class="btn btn-primary" onClick="handleAccept(`<%= data[i].class_id %>`,`<%= data[i].client_id %>`, `accept`)">Accept</button> <br />
+                                <button class="btn btn-warning" onClick="handleReject(`<%= data[i].class_id %>`,`<%= data[i].client_id %>`, `reject`)">Reject</button> <br />
+                              <%}%>
                               </td>
                           </tr>
-                        <% }) %>
+                        <% } %>
                         </tbody>
                       </table>
                 </div>
-            </form>
         </div>
     </div>
 </body>
 <script>
-  // const axios = require('axios');
-
   function handleAccept(class_id, client_id,action) {
     let result = axios.post("http://localhost:8080/admin/submitClassRegis", 
     {class_id,client_id,action}
     ).then(response => {
       console.log(response)
+      Swal.fire({
+        icon: 'success',
+        title: 'Accept!',
+        showConfirmButton: false,
+        timer: 1500
+      })
     })
     .catch(error => {
       console.log(error);
@@ -73,6 +81,12 @@
     {class_id,client_id,action}
     ).then(response => {
       console.log(response)
+      Swal.fire({
+        icon: 'success',
+        title: 'Reject!',
+        showConfirmButton: false,
+        timer: 1500
+      })
     })
     .catch(error => {
       console.log(error);

@@ -37,20 +37,20 @@
                           </tr>
                         </thead>
                         <tbody>
-                        <% data.forEach((item)=> { %>
+                        <% for(var i = 0; i <data.length; i++) { %>
                           <tr>
-                            <th scope="row">1</th>
-                            <td><%= item.client_email %></td>
-                            <td><%= item.firstName %></td>
-                            <td><%= item.lastName %></td>
-                            <td><%= item.age %></td>
-                            <td><%= item.avatar %></td>
+                            <th scope="row"><%=i+1%></th>
+                            <td><%= data[i].Client.client_email %></td>
+                            <td><%= data[i].Client.firstName %></td>
+                            <td><%= data[i].Client.lastName %></td>
+                            <td><%= data[i].Client.age %></td>
+                            <td><%= data[i].Client.avatar %></td>
                             <td>
-                                <a href="/updateMeView/<%=item.client_id %>">Edit</a> <br />
-                                <a href="/api/admin/deleteClient/<%=item.client_id %>">Delete</a>
+                                <a href="/client/updateMeView/<%=data[i].Client.client_id %>">Edit</a> <br />
+                                <a href="/admin/deleteClient/<%=data[i].Client.client_id %>">Delete</a>
                               </td>
                           </tr>
-                        <% }) %>
+                        <% } %>
                         </tbody>
                       </table>
                 </div>

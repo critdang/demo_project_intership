@@ -5,13 +5,12 @@ const viewEngine = require("./config/viewEngine");
 const {sequelize} = require("./models");
 const cors = require("cors");
 const cron = require("node-cron");
-const reminder = require("./utils/reminder");
+// const reminder = require("./utils/reminder");
 const session = require("express-session");
-var localStrategy = require('passport-local').Strategy;
 const User = require('./models').User;
 const passport = require("passport");
-const bcrypt = require('bcryptjs');
 const axios = require('axios');
+const morgan = require('morgan');
 
 require('dotenv').config();
 //reminder
@@ -23,37 +22,19 @@ const initClassRoutes = require('./routes/classRouter');
 const initAdminRoutes = require('./routes/adminRouter');
 const app = express();
 app.use(cors());
+app.use(morgan('dev'));
 
 // middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static('public'));
 app.use(session({secret: 'key'}));
+
+// passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser((user, done) => {
-    done(null, user);
-})
 
-passport.deserializeUser(function(user, done) {
-    done(null, user);
-});
-passport.use(new localStrategy({usernameField:'user_email'},
-     function(username,password, done) {
-        User.findOne({
-            where:{user_email: username},
-        })
-        .then(async(user) => {
-            if(!user) return done(null,false);
-            
-            let passport = await bcrypt.compare(password,user.password);
-
-            if(!passport) return done(null, false)
-            return done(null,user)
-        })
-    }
-))
 
 
 // import viewEngine for ejs
@@ -66,6 +47,7 @@ viewEngine(app);
 // app.use('/clientCrud',clientRouters)//gói vào initWebRoutes
 
 //import route
+// app.use('/',auth.accessToken,initClientRoutes)
 initClientRoutes(app);
 initClassRoutes(app);
 initAdminRoutes(app);

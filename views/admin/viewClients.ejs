@@ -20,7 +20,6 @@
 <body>
     <div class="container">
         <div class="row">
-            <form action="/api/client/" method="POST">
                 <div class="form-row">
                     
                     <div class="col-12 mt-3">Profile</div>
@@ -37,25 +36,23 @@
                           </tr>
                         </thead>
                         <tbody>
-                        <% data %>
-                        <% data.forEach((item)=> { %>
+                        <% for(var i = 0; i <data.length; i++) { %>
                           <tr>
-                            <th scope="row">1</th>
-                            <td><%= item.client_email %></td>
-                            <td><%= item.firstName %></td>
-                            <td><%= item.lastName %></td>
-                            <td><%= item.age %></td>
-                            <td><%= item.avatar %></td>
+                            <th scope="row"><%=i+1%></th>
+                            <td><%= data[i].client_email %></td>
+                            <td><%= data[i].firstName %></td>
+                            <td><%= data[i].lastName %></td>
+                            <td><%= data[i].age %></td>
+                            <td><%= data[i].avatar %></td>
                             <td>
-                                <a href="/client/updateMeView/<%=item.client_id %>">Edit</a> <br />
-                                <a href="/admin/deleteClient/<%=item.client_id %>">Delete</a>
+                                <a href="/client/updateMeView/<%=data[i].client_id %>">Edit</a> <br />
+                                <a href="/admin/deleteClient/<%=data[i].client_id %>">Delete</a>
                               </td>
                           </tr>
-                        <% }) %>
+                        <% } %>
                         </tbody>
                       </table>
                 </div>
-            </form>
         </div>
     </div>
 </body>

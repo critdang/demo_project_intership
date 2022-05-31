@@ -11,13 +11,13 @@ const signUpValidateMethod = Joi.object({
             errors.forEach((err) => {
                 switch(err.code) {
                     case 'string.empty':
-                        err.message = 'username should not be empty';
+                        err.message = 'firstname should not be empty';
                         break;
                     case 'string.min':
-                        err.message = `username should have at least ${err.local.min} characters`;
+                        err.message = `firstname should have at least ${err.local.min} characters`;
                         break;
                     case 'string.max':
-                        err.message = `username should have at most ${err.local.limit} characters!`;
+                        err.message = `firstname should have at most ${err.local.limit} characters!`;
                     break;
                 default:
                     break;
