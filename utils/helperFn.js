@@ -11,7 +11,7 @@ exports.generateToken = (key,time) => {
     });
 };
 
-exports.returnSuccess = (req,res,data = "nothing") => {
+exports.returnSuccess = (req,res,data = "success") => {
   res.status(200).json({
     status: 'success',
     data:data,
@@ -59,20 +59,21 @@ exports.comparePassword = async (inputPassword, userPassword) => {
 // setting for image upload
 const fileStorage = multer.diskStorage({
   destination: (req,file,cb) => {
-    cb(null, 'public/image/client');
-    if(req.body.user_id) 
+    // cb(null, 'public/image/client');
+    // if(req.params.user_id) 
     cb(null, 'public/image/user');
   },
   
   filename:(req,file,cb) => {
-    if(req.body.client_id){
-      cb(null, `client-${req.body.client_id}-avatar.jpeg`); //edit filename
+    if(req.params.client_id){
+      cb(null, `client-${req.params.client_id}-avatar.jpeg`); //edit filename
     }
-    if(req.body.user_id){
-      cb(null, `user-${req.body.user_id}-avatar.jpeg`); //edit filename
+    if(req.params.user_id){
+      cb(null, `user-${req.params.user_id}-avatar.jpeg`); //edit filename
     }
   }
 });
+
 
 const fileFilter = (req,file,cb) => {
   if(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg"){
@@ -84,5 +85,12 @@ const fileFilter = (req,file,cb) => {
 
 exports.upload = multer({
   storage: fileStorage,
-  fileFilter: fileFilter,
+  fileFilter:fileFilter
 })
+
+exports.isUserLogin = (req, res,next) => { 
+  if(req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json('error')
+}

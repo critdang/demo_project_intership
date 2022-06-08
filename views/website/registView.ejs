@@ -23,7 +23,7 @@
             <form action="/api/client/" method="POST">
                 <div class="form-row">
                     
-                    <div class="col-12 mt-3">Registration class</div>
+                    <div class="col-12 mt-3 text-uppercase">Registration class</div>
                     <table class="table table-striped">
                         <thead>
                           <tr>
@@ -38,19 +38,20 @@
                           </tr>
                         </thead>
                         <tbody>
-                        <% data.forEach((item)=> { %>
+                          <% for(var i= 0; i<data.length; i++) { %>
                           <tr>
-                            <th scope="row"><%= item.class_id %></th>
-                            <td><%= item.subject %></td>
-                            <td><%= item.from %></td>
-                            <td><%= item.to %></td>
-                            <td><%= item.status %></td>
-                            <td><%= item.regisDate %></td>
+                            <th scope="row"><%= i+1 %></th>
+
+                            <td><%= data[i].subject %></td>
+                            <td><%= data[i].from %></td>
+                            <td><%= data[i].to %></td>
+                            <td><%= data[i].status %></td>
+                            <td><%= data[i].regisDate %></td>
                             <td>
-                                <a class="btn btn-success" href="/client/registClass/<%=client_id %>/<%=item.class_id %>">Regist</a> <br />
-                              </td>
+                                <a class="btn btn-success" href="/client/registClass/<%=client_id %>/<%=data[i].class_id %>">Regist</a> <br />
+                            </td>
                           </tr>
-                        <% }) %>
+                        <% } %>
                         </tbody>
                       </table>
                 </div>

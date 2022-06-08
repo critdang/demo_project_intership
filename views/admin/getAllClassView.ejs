@@ -21,9 +21,8 @@
     <div class="container">
         <div class="row">
             <form action="/api/classes?status=open" method="GET">
-                <div class="form-row">
-                  <div>
-                    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="form-row" >
+                    <nav class="navbar navbar-expand-lg navbar-dark " style="width:100%; background-color:rgba(78,87,101)">
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                       <ul class="navbar-nav mr-auto">
                         <li class="nav-item dropdown">
@@ -54,13 +53,12 @@
                         </li>
                       </ul>
                       <form class="form-inline my-2 my-lg-0">
-                        <a class="btn btn-outline-success my-2 my-sm-0" href="/admin/logout">Log Out</a>
+                        <a class="btn my-2 my-sm-0" href="/admin/logout" style="color:white;border-color: white;">Log Out</a>
                       </form>
                     </div>
                     </nav>
-                  </div>
-                  <div class="col-12 mt-3">All Classes</div>
-                  <a href="/admin/createClassView" class="btn btn-primary  active" role="button" aria-pressed="true">Create Class</a>
+                  <div class="col-12 mt-3 text-uppercase">All Classes</div>
+                  <a href="/admin/createClassView" class="btn btn-primary  active" role="button" aria-pressed="true" style="margin-bottom: 15px;">Create Class</a>
                     <table class="table table-striped">
                         <thead>
                           <tr>
@@ -73,28 +71,30 @@
                             <th scope="col">From</th>
                             <th scope="col">To</th>
                             <th scope="col">Status</th>
+                            <th scope="col">Action</th>
                           </tr>
                         </thead>
                         <tbody>
-                        <% data.forEach((item)=> { %>
+                          <% for(var i= 0; i<data.length; i++) { %>
+
                           <tr>
-                            <th scope="row"><%= item.class_id %></th>
-                            <td><%= item.subject %></td>
-                            <td><%= item.class_description %></td>
-                            <td><%= item.week_day %></td>
-                            <td><%= item.max_students %></td>
-                            <td><%= item.current_student %></td>
-                            <td><%= item.from %></td>
-                            <td><%= item.to %></td>
-                            <td><%= item.status %></td>
+                            <th scope="row"><%= i+1 %></th>
+                            <td><%= data[i].subject %></td>
+                            <td><%= data[i].class_description %></td>
+                            <td><%= data[i].week_day %></td>
+                            <td><%= data[i].max_students %></td>
+                            <td><%= data[i].current_student %></td>
+                            <td><%= data[i].from %></td>
+                            <td><%= data[i].to %></td>
+                            <td><%= data[i].status %></td>
                             <td>
-                                <a href="/admin/updateClassView/<%=item.class_id %>">Edit</a> <br />
-                                <a href="/admin/delete/<%=item.class_id %>">Delete</a>
+                                <a href="/admin/updateClassView/<%=data[i].class_id %>">Edit</a> <br />
+                                <a href="/admin/delete/<%=data[i].class_id %>">Delete</a>
                                 </br>
-                                <a href="/admin/viewClients/<%=item.class_id %>">View clients</a>
+                                <a href="/admin/viewClients/<%=data[i].class_id %>">View clients</a>
                               </td>
                           </tr>
-                        <% }) %>
+                        <% } %>
                         </tbody>
                       </table>
                 </div>

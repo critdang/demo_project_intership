@@ -20,9 +20,9 @@
 <body>
     <div class="container">
         <div class="row">
-            <form  action="/api/admin/updateUserPassword" method="POST">
+            <form  action="/admin/updateUser/<%=data%>" method="POST" enctype="multipart/form-data">
                 <div class="form-row">
-                    <div class="col-12 mt-3">Update User</div>
+                    <div class="col-12 mt-3 text-uppercase" style="border-bottom: 1px solid grey;">Update User</div>
                     <div class="form-group col-6">
                         <label for="user_email">Email</label>
                         <input type="email" class="form-control"  placeholder="Email" name="user_email">
@@ -33,11 +33,11 @@
                     </div>
                     <div class="form-group col-6">
                         <label for="age">Age</label>
-                        <input type="age" class="form-control" name="age" placeholder="age">
+                        <input type="number" class="form-control" name="age" placeholder="age">
                     </div>
                     <div class="form-group col-6">
-                        <label for="avatar">Avatar</label>
-                        <input type="file" class="form-control" name="avatar" >
+                        <label for="image">Avatar</label>
+                        <input type="file" class="form-control" name="image" >
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>

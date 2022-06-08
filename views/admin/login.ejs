@@ -16,12 +16,12 @@
 
     <!-- Latest compiled JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+    
 </head>
 <body>
     <div class="container">
-        <div class="row">
             <form action="/admin/login" method="POST">
-                <div class="form-row">
+                <div class="form-row" style="display: flex;flex-direction: column;align-items: center;text-align: center;justify-content: center;margin: auto">
                     <div class="col-12 mt-3">Login admin view</div>
                     <div class="form-group col-6">
                         <label for="user_email">Email</label>
@@ -31,10 +31,10 @@
                         <label for="password">Password</label>
                         <input type="password" class="form-control" name="password" placeholder="password">
                     </div>
+                    <button type="submit" class="btn btn-primary">Sign in</button>
                 </div>
-                <button type="submit" class="btn btn-primary">Sign in</button>
             </form>
-        </div>
     </div>
 </body>
+
 </html>

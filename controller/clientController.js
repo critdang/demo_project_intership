@@ -9,10 +9,16 @@ const jwt = require('jsonwebtoken');
 const AppError = require('../utils/errorHandle/appError');
 const bcrypt = require('bcryptjs/dist/bcrypt');
 const cli = require('nodemon/lib/cli');
-const cloudinary = require('cloudinary')
+const cloudinary = require('cloudinary');
+const fs = require('fs');
+const {promisify} = require('util');
+const removeFile = promisify(fs.unlink);
+const {Op} = require('sequelize');
+
 require('dotenv').config();
 
 const getClient = async(req, res) => {
+    
     const data = await Client.findAll({
         attributes: { exclude: ['password', 'countLogin', 'isActive'] },
     })
@@ -32,14 +38,14 @@ const idClient = async(req, res) => {
 
 const createClient = catchAsync(async (req, res,next) => {
     const {firstName,client_email,password} = req.body;
+    console.log('run')
     if(!firstName || !client_email || !password) {
-        return res.status(400).json("Fill out completely");
+        return res.status(400).json(process.env.FILL_OUT);
     }
-    console.log('firstName,client_email,password',firstName,client_email,password)
     const emailExists = await Client.findOne({where: {client_email: client_email}});
-    if(emailExists) {return res.status(400).json("Email already existed ")};
+    if(emailExists) {return res.status(400).json(process.env.EXIST_ACCOUNT)};
     
-    if(!client_email) return next(new AppError(`Please provide email and !`,400))
+    if(!client_email) return next(new AppError(process.env.PROVIDE_EMAIL,400))
     await Client.create({
         firstName,
         client_email,
@@ -67,13 +73,13 @@ const login = catchAsync(async (req, res,next) => {
     const {client_email:inputEmail, password:inputPassword} = req.body;
     // check exist email
     if(!inputEmail || !inputPassword) {
-        return next(new AppError(`Please provide email and password!`,400))
+        return next(new AppError(process.env.PROVIDE,400))
     }
     // get exist email
     const client = await Client.findOne( {where: {client_email:inputEmail}});
 
     if(!client) {
-        return next(new AppError(`your email is not correct`,400));
+        return next(new AppError(process.env.EMAIL_NOT_CORRECT,400));
     };
     // get all params client
     const {
@@ -84,24 +90,22 @@ const login = catchAsync(async (req, res,next) => {
     // check countLogin and isActive
     if(countLogin >=3 || !isActive) {
         return next(
-            new AppError(
-                'your account has been disabled or not active yet , please contact admin',
-                400
-        ))
+            new AppError( process.env.DISABLED,400))
     };
     const wrongPassword = await helperFn.comparePassword(inputPassword,password);
     if(!wrongPassword) {
         await client.increment('countLogin');
         await client.save();
-        return next(new AppError('your password not correct', 400));
+        return next(new AppError(process.env.PASS_NOT_CORRECT, 400));
     };
     const token = helperFn.generateToken({ client_id:client.client_id},'1d');
     client.countLogin = 0;
     await client.save(); //save database by sequelize
     res.cookie('jwt',token, { httpOnly: true, secure: true, maxAge: 3600000 });
-
-    // helperFn.returnSuccess(req,res,client);
-        res.render("website/websiteView",{ data: [client],token:token});
+    const linkImage = client.avatar
+    const myImage = cloudinary.image(linkImage, {type: "fetch"},{width: 100, height: 150, crop: "fill"});
+    // helperFn.returnSuccess(req,res,myImage);
+    res.render("website/websiteView",{ data: [client],token:token,Image: myImage});
 });
 const loginView = async(req, res) => {
     return res.render('website/login.ejs');
@@ -124,30 +128,27 @@ const verifyClientEmail = catchAsync(async(req, res,next) => {
         }
     });
     if(!client) {
-        return next(new AppError('this email not available',401));
+        return next(new AppError(process.env.EMAIL_NOT_AVA,401));
     }
     client.isActive = true;
     await client.save();
 }catch (err) {
     if(err.name ==='TokenExpiredError')
-    return next(new AppError('Your token has expired',401));
+    return next(new AppError(process.env.TOKEN_EXPIRED,401));
 }
-    helperFn.returnSuccess(req, res, 'success. Your email has been actived');
+    helperFn.returnSuccess(req, res, process.env.SUCCESS_VERIFY);
 })
 
 const updateClientPassword = catchAsync(async (req, res,next) => {
+    if (!req.isAuthenticated()) return res.redirect('/client/loginView');
     const {client_id} = req.params;
     const { oldPass, newPass } = req.body;
     const client = await Client.findOne({
         where: {client_id: client_id}
-        // where: {client_email: client_email}
     })
     const checkPass = await helperFn.comparePassword(oldPass,client.password);
-    // console.log('check pass',checkPass)
-    // console.log('client password',client.password)
-    // console.log('old password',oldPass)
     if(!checkPass) {
-        return next(new AppError('please try the right password',400));
+        return next(new AppError(process.env.CHECK_PASS,400));
     }
     const hashPass = await bcrypt.hash(newPass,8);
 
@@ -173,7 +174,7 @@ cloudinary.config({
 const updateMe = catchAsync(async (req, res,next) => {
     // console.log('check req.file exist',req.file); check file
     const client_id = req.params.client_id;
-    const {phonenumber, age,} = req.body;
+    const {phonenumber, age} = req.body;
     const client = await Client.findOne({
         where: {client_id: client_id},
         attributes: {exclude: ['password','countLogin','isActive']},
@@ -183,16 +184,17 @@ const updateMe = catchAsync(async (req, res,next) => {
         const img = await cloudinary.uploader.upload(req.file.path, {
             public_id: req.file.filename
         });
-        client.avatar = await img.url;
+        client.avatar = img.url;
+        await removeFile(req.file.path);
     }
     if(phonenumber) client.phonenumber = phonenumber;
     if(age) client.age = age;
 
     await client.save();
 
-    // helperFn.returnSuccess(req, res,client);
+    helperFn.returnSuccess(req, res,client);
 
-    res.redirect("/admin/getClient");
+    // res.redirect("/admin/getClient");
 })
 const deleteClient = catchAsync(async (req, res) => {
     client_id = req.params.client_id;
@@ -208,30 +210,39 @@ const deleteClient = catchAsync(async (req, res) => {
 // update Me view
 const updateMeView = (req, res) => {
     res.render('website/updateMeView.ejs',
-    {data : req.params}
-    )
+    {data : req.params})
 };
 const websiteView = async(req, res) => {
     res.render('website/websiteView.ejs');
 };
-const regis = async (req, res) => {
+const regis = async (req, res,next) => {
+    if (!req.isAuthenticated()) return res.redirect('/client/loginView');
     client_id = req.params.client_id;
     class_id = req.params.class_id;
     const regisExists = await Regis.findOne({
         where: {
             client_id: client_id,
-            class_id: class_id
+            class_id: class_id,
+            status: ['pending','active']
         }
     });
-
     if(regisExists) {
-        res.json("Your registration has been already existed ")
         await regisExists.destroy();
+        return res.json(process.env.REGIS_EXISTS)
     }
     
+    const classStatus = await Class.findOne({
+        where: {
+            class_id,
+        }
+    })
+    if(classStatus.max_students == classStatus.current_student) {
+        return next(new AppError(process.env.CLASS_FULL,400));
+    }
     const data = await Regis.create({
         client_id,
         class_id,
+        regisDate: Date.now()
     });
 
     helperFn.returnSuccess(req, res, data);
@@ -249,7 +260,7 @@ const registration = catchAsync(async(req, res) => {
     });
 
     if(!regis) {
-        res.send('does not have registration');
+        res.send(process.env.NO_REGIS);
     }
 
     // helperFn.returnSuccess(req, res)
@@ -292,21 +303,24 @@ const cancelRegistration = catchAsync(async (req, res) => {
 
 const getOpenClass = catchAsync(async (req, res) => {
     client_id = req.params.client_id;
-    const data = await Class.findAll({
-        where: {status: 'open'},
-        limit: 5
-    })
+    try{
+        const data = await Class.findAll({
+            status:'open',
+            limit: 5
+        });
 
-    // helperFn.returnSuccess(req,res,data);
-
-    res.render('website/registView',{data,client_id});
+        // helperFn.returnSuccess(req,res,regisExists);
+        res.render('website/registView',{data,client_id});
+    }catch(err){
+        console.log(err);
+    }
 })
 
 const registedClass = catchAsync(async (req, res) => {
     client_id = req.params.client_id;
 
     const data = await Regis.findAll({
-        where: {client_id: client_id, status: 'active'},
+        where: {client_id: client_id},
         include: [
             {
                 model: Class,
@@ -320,20 +334,20 @@ const registedClass = catchAsync(async (req, res) => {
 })
 const getCalenderClass = catchAsync(async (req, res) => {
     const client_id = req.params.client_id;
-    const currentClass = await Regis.findAll({
+    const data = await Regis.findAll({
       where: { client_id, status: 'active'},
       include: {
           model: Class,
-          attributes: ['subject', 'from', 'to','week_day'],
+          attributes: ['subject', 'from', 'to','week_day','class_description'],
       }
     });
-    if (!currentClass) {
-      return next(new AppError('this class does not exist', 404));
+    if (!data) {
+      return next(new AppError(process.env.NO_CLASS, 404));
     }
-    res.status(200).json({
-      status: 'success',
-      data: currentClass,
-    });
+
+    // helperFn.returnSuccess(req, res,data)
+    res.render('website/calenderView',{data});
+
 })
 module.exports = {
     getClient: getClient,

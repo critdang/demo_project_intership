@@ -37,6 +37,7 @@
                           </tr>
                         </thead>
                         <tbody>
+                          
                         <% for(var i = 0; i <data.length; i++) { %>
                           <tr>
                             <th scope="row"><%=i+1%></th>
@@ -47,7 +48,7 @@
                             <td><%= data[i].Client.avatar %></td>
                             <td>
                                 <a href="/client/updateMeView/<%=data[i].Client.client_id %>">Edit</a> <br />
-                                <a href="/admin/deleteClient/<%=data[i].Client.client_id %>">Delete</a>
+                                <a href="/admin/<%=class_id%>/deleteClientInClass/<%=data[i].Client.client_id %>">Delete</a>
                               </td>
                           </tr>
                         <% } %>

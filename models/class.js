@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'class_id',
         otherKey: 'client_id'
       })
+      this.hasMany(models.Regis,{as:'r',foreignKey:'class_id'})
     }
   }
   Class.init({

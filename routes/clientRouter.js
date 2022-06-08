@@ -5,6 +5,7 @@ const validate = require('../validate/validate');
 const clientController = require('../controller/clientController');
 const auth = require('../middleware/auth');
 const passport = require('passport');
+const {upload,isUserLogin} = require('../utils/helperFn')
 
 require("../middleware/auth").authClient(passport)
 
@@ -29,13 +30,13 @@ let initClientRoutes = (app) => {
     router.post('/updateClientPassword/:client_id', clientController.updateClientPassword);
     //auth.protectingRoutes,
     // load login view
-    router.get("/updateClientPasswordView/:id", clientController.updateClientPasswordView);
+    router.get("/updateClientPasswordView/:client_id", clientController.updateClientPasswordView);
     // upload image
     router.post('/uploadAvatar',clientController.uploadAvatar);
     // updateMe
-    router.patch('/updateMe',clientController.uploadAvatar,clientController.updateMe);
+    router.post('/updateMe/:client_id',upload.single('image'),clientController.updateMe);
     // updateMe view
-    router.get('/updateMeView/:client_id',clientController.updateMeView);
+    router.get('/updateMeView/:client_id',isUserLogin,clientController.updateMeView);
     // websiteView
     router.get('/websiteView',clientController.websiteView);
     // create Regis
