@@ -38,7 +38,6 @@ const idClient = async(req, res) => {
 
 const createClient = catchAsync(async (req, res,next) => {
     const {firstName,client_email,password} = req.body;
-    console.log('run')
     if(!firstName || !client_email || !password) {
         return res.status(400).json(process.env.FILL_OUT);
     }
@@ -62,7 +61,7 @@ const createClient = catchAsync(async (req, res,next) => {
         token,
     );
 
-    helperFn.returnSuccess(req, res, token);
+    helperFn.returnSuccess(req, res);
 });
 
 const signupView = async (req, res) => {
@@ -88,10 +87,10 @@ const login = catchAsync(async (req, res,next) => {
         isActive,
     } = client;
     // check countLogin and isActive
-    if(countLogin >=3 || !isActive) {
-        return next(
-            new AppError( process.env.DISABLED,400))
-    };
+    // if(countLogin >=3 || !isActive) {
+    //     return next(
+    //         new AppError( process.env.DISABLED,400))
+    // };
     const wrongPassword = await helperFn.comparePassword(inputPassword,password);
     if(!wrongPassword) {
         await client.increment('countLogin');

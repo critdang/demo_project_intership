@@ -36,11 +36,12 @@ exports.sendEmail = async (
     const domain = `http://localhost:8080`;
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: "smtp.mailtrap.io",
+      port: 2525,
       auth: {
-        user : process.env.EMAIL,
-        pass: process.env.EMAIL_PASSWORD,
-      },
+        user: process.env.AUTH_USER,
+        pass: process.env.AUTH_PASS
+      }
     });
     const mailOption = {
       from: process.env.EMAIL,
