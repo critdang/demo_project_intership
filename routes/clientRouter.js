@@ -15,7 +15,7 @@ let initClientRoutes = (app) => {
     // get id clients
     router.get("/api/client/:id",auth.protectingRoutes, clientController.idClient);
     // signup
-    router.post("/create", validate.signUpValidate, clientController.createClient);
+    router.post("/create",  clientController.createClient);
     // load signup view
     router.get("/signupView" , clientController.signupView);
     // login
@@ -33,6 +33,8 @@ let initClientRoutes = (app) => {
     router.get("/updateClientPasswordView/:client_id", clientController.updateClientPasswordView);
     // upload image
     router.post('/uploadAvatar',clientController.uploadAvatar);
+    // get profile
+    router.get('/getProfile', clientController.getProfile);
     // updateMe
     router.post('/updateMe/:client_id',upload.single('image'),clientController.updateMe);
     // updateMe view

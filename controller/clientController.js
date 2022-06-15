@@ -14,6 +14,7 @@ const fs = require('fs');
 const {promisify} = require('util');
 const removeFile = promisify(fs.unlink);
 const {Op} = require('sequelize');
+const { sequelize } = require('../models');
 
 require('dotenv').config();
 
@@ -37,7 +38,7 @@ const idClient = async(req, res) => {
 }
 
 const createClient = catchAsync(async (req, res,next) => {
-    const {firstName,client_email,password} = req.body;
+    const {firstName,client_email,password,lastName} = req.body;
     if(!firstName || !client_email || !password) {
         return res.status(400).json(process.env.FILL_OUT);
     }
@@ -49,6 +50,7 @@ const createClient = catchAsync(async (req, res,next) => {
         firstName,
         client_email,
         password,
+        lastName
     });
     
     const token = helperFn.generateToken({client_email}, '3m');
@@ -60,8 +62,8 @@ const createClient = catchAsync(async (req, res,next) => {
         process.env.SUCCESS_EMAIL_ENDPOINT,
         token,
     );
-
-    helperFn.returnSuccess(req, res);
+    res.redirect('/client/loginView')
+    // helperFn.returnSuccess(req, res);
 });
 
 const signupView = async (req, res) => {
@@ -196,16 +198,27 @@ const updateMe = catchAsync(async (req, res,next) => {
     // res.redirect("/admin/getClient");
 })
 const deleteClient = catchAsync(async (req, res) => {
-    client_id = req.params.client_id;
-    const client = await Client.findOne({
-        where: {client_id:client_id}
-    })
-    await client.destroy();
-
-    // helperFn.returnSuccess(req, res,'Client deleted successfully')
-
-    res.redirect('/admin/getClient');
+    const t = await sequelize.transaction();
+    try{
+        client_id = req.params.client_id;
+        await Client.destroy({where: {client_id:client_id}},{transaction:t});
+        await Regis.destroy({where: {client_id:client_id}},{transaction:t});
+        await t.commit();
+        helperFn.returnSuccess(req, res );
+        // helperFn.returnSuccess(req, res,'Client deleted successfully')
+        
+        // res.redirect('/admin/getClient');
+    }catch(err) {
+        t.rollback();
+        console.log(err);
+    }
 })
+const getProfile = async(req, res) => {
+    // client_id = req.params.client_id; cùng địa chỉ
+    const data = {...req.user};
+    res.render('website/updateMeView.ejs',
+    {data})
+}
 // update Me view
 const updateMeView = (req, res) => {
     res.render('website/updateMeView.ejs',
@@ -216,6 +229,7 @@ const websiteView = async(req, res) => {
 };
 const regis = async (req, res,next) => {
     if (!req.isAuthenticated()) return res.redirect('/client/loginView');
+    try{
     client_id = req.params.client_id;
     class_id = req.params.class_id;
     const regisExists = await Regis.findOne({
@@ -243,8 +257,12 @@ const regis = async (req, res,next) => {
         class_id,
         regisDate: Date.now()
     });
+    if(!data) return helperFn.returnFail(req, res);
 
     helperFn.returnSuccess(req, res, data);
+    }catch(err) {
+        console.log(err);
+    }
 }
 const registration = catchAsync(async(req, res) => {
     // class_id = req.params.class_id
@@ -316,10 +334,13 @@ const getOpenClass = catchAsync(async (req, res) => {
 })
 
 const registedClass = catchAsync(async (req, res) => {
+    try{
     client_id = req.params.client_id;
 
     const data = await Regis.findAll({
-        where: {client_id: client_id},
+        where: {
+            client_id,
+        },
         include: [
             {
                 model: Class,
@@ -327,9 +348,12 @@ const registedClass = catchAsync(async (req, res) => {
             }   
         ]
     })
-    
     // helperFn.returnSuccess(req, res, data);
     if(data) res.render('website/registedClass',{data});
+    }catch(err) {
+        console.log(err)
+    }
+
 })
 const getCalenderClass = catchAsync(async (req, res) => {
     const client_id = req.params.client_id;
@@ -359,6 +383,7 @@ module.exports = {
     verifyClientEmail:verifyClientEmail,
     updateClientPassword:updateClientPassword,
     updateClientPasswordView:updateClientPasswordView,
+    getProfile:getProfile,
     updateMe:updateMe,
     updateMeView:updateMeView,
     uploadAvatar:uploadAvatar,

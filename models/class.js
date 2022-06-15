@@ -43,16 +43,22 @@ module.exports = (sequelize, DataTypes) => {
     from: {
       type: DataTypes.DATE,
       allowNull: false,
+      // get() {
+      //   return moment(this.getDataValue('from')).format('DD-MM-YYYY, h:mm:ss a');
+      // },
       get() {
-        return moment(this.getDataValue('startDate')).format('YYYY-MM-DD');
-      },
+        return moment(this.getDataValue('from')).format('LLLL');
+      }
     },
     to: {
       type: DataTypes.DATE,
       allowNull: false,
+      // get() {
+      //   return moment(this.getDataValue('to')).format('DD-MM-YYYY, h:mm:ss a');
+      // },
       get() {
-        return moment(this.getDataValue('endDate')).format('YYYY-MM-DD');
-      },
+        return moment(this.getDataValue('to')).format('LLLL');
+      }
     },
     status: {
       type: DataTypes.ENUM('open', 'close', 'pending'),

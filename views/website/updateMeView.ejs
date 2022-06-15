@@ -22,17 +22,18 @@
         <div class="row">
             <form action="/client/updateMe/<%= data.client_id%>" method="POST" enctype="multipart/form-data">
                 <div class="form-row">
-                    <div class="col-12 mt-3">Update Password</div>
+                    <div class="col-12 mt-3">Update Profile</div>
                     <div class="form-group col-6">
                         <label for="phonenumber"> Phone Number</label>
-                        <input type="text" class="form-control" name="phonenumber" placeholder="Please input number" value="<%= data.age%>">
+                        <input type="text" class="form-control" name="phonenumber" placeholder="Please input number" value="<%= data.phonenumber%>">
                     </div>
                     <div class="form-group col-6">
                         <label for="age">Age</label>
-                        <input type="text" class="form-control" name="age" placeholder="Please input number">
+                        <input type="text" class="form-control" name="age" placeholder="Please input number" value="<%= data.age%>">
                     </div>
+                    <label for="image">Avatar</label>
                     <div class="form-group col-6">
-                        <label for="image">Avatar</label>
+                        <img src="<%=data.avatar%>" style="width: 300px;">
                         <input type="file" class="form-control" name="image">
                     </div>
                 </div>

@@ -73,14 +73,14 @@
                         <tbody>
                           <% for(var i= 0; i<data.length; i++) { %>
                           <tr>
-                            <th scope="row"><%= data[i].client_id %></th>
+                            <th scope="row"><%= i+1 %></th>
                             <td><%= data[i].client_email %></td>
                             <td><%= data[i].firstName %></td>
                             <td><%= data[i].lastName %></td>
                             <td><%= data[i].age %></td>
                             <td><img src="<%=data[i].avatar%>" style="width: 180px"></td>
                             <td>
-                                <a href="/client/updateMeView/<%=data[i].client_id %>">Edit</a> <br />
+                                <a href="/client/getProfile">Edit</a> <br />
                                 <a href="/client/updateClientPasswordView/<%=data[i].client_id %>">Change Password</a>
                               </td>
                           </tr>

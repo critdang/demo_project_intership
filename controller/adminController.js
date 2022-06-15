@@ -33,7 +33,6 @@ const login = async (req, res,next) => {
     if(!wrongPassword) {
         return next(new AppError(process.env.PASS_NOT_CORRECT, 400));
     }
-
     // helperFn.returnSuccess(req, res);
     res.redirect('/admin/allClass');
 }
@@ -50,10 +49,10 @@ const logout = (req, res) => {
 const updateUserPassword = catchAsync(async (req, res,next) => {
     if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
 
-    const { oldPass, newPass, user_email } = req.body;
-
+    const { oldPass, newPass } = req.body;
+    const id = req.user.user_id;
     const user = await User.findOne({
-        where: {user_email: user_email}
+        where: {user_id:id }
     })
 
     const checkPass = await helperFn.comparePassword(oldPass,user.password);
@@ -84,7 +83,7 @@ cloudinary.config({
 const updateUser = catchAsync(async (req, res,next) => {
     if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
 
-    const {phonenumber, age,user_email} = req.body;
+    const {phonenumber, age} = req.body;
     const user_id = req.params.user_id;
 
     const user = await User.findOne({
@@ -102,7 +101,6 @@ const updateUser = catchAsync(async (req, res,next) => {
 
     if(phonenumber) user.phonenumber = phonenumber;
     if(age) user.age = age;
-    if(user_email) user.user_email = user_email;
 
     await user.save();
     helperFn.returnSuccess(req,res,user);
@@ -205,7 +203,7 @@ const deleteClass = catchAsync(async (req, res,next) => {
 
     await currentClass.destroy();
     // helperFn.returnSuccess(req, res,'Class deleted successfully')
-
+    console.log(req.session);
     res.redirect('/admin/allClass');
 })
 const findClass = catchAsync(async (req, res,next) => {
@@ -221,7 +219,7 @@ const findClass = catchAsync(async (req, res,next) => {
 })
 const viewClientsInClass = catchAsync(async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
-
+    try{
     const class_id = req.params.class_id;
     const data = await Regis.findAll({
         where: { class_id, status: 'active' },
@@ -236,7 +234,9 @@ const viewClientsInClass = catchAsync(async (req, res, next) => {
     
     // helperFn.returnSuccess(req,res,data);
     res.render('class/viewClientsInClass.ejs',{data,class_id});
-
+    }catch(err){
+        console.log(err);
+    }
 })     
 const deleteClientInClass = catchAsync(async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
