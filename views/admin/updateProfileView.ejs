@@ -20,20 +20,21 @@
 <body>
     <div class="container">
         <div class="row">
-            <form  action="/admin/updateUser/<%=data%>" method="POST" enctype="multipart/form-data">
+            <form  action="/admin/updateUser/<%=data.user_id%>" method="POST" enctype="multipart/form-data">
                 <div class="form-row">
                     <div class="col-12 mt-3 text-uppercase" style="border-bottom: 1px solid grey;">Update User</div>
                     
                     <div class="form-group col-6">
                         <label for="phonenumber">Phone Number</label>
-                        <input type="phone" class="form-control"  placeholder="phonenumber" name="phonenumber">
+                        <input type="phone" class="form-control"  value="<%=data.phonenumber%>" name="phonenumber">
                     </div>
                     <div class="form-group col-6">
                         <label for="age">Age</label>
-                        <input type="number" class="form-control" name="age" placeholder="age">
+                        <input type="number" class="form-control" name="age" value="<%=data.age%>">
                     </div>
                     <div class="form-group col-6">
                         <label for="image">Avatar</label>
+                        <img src="<%=data.avatar%>" width="250px">
                         <input type="file" class="form-control" name="image" >
                     </div>
                 </div>

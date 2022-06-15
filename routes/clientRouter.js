@@ -38,7 +38,7 @@ let initClientRoutes = (app) => {
     // updateMe
     router.post('/updateMe/:client_id',upload.single('image'),clientController.updateMe);
     // updateMe view
-    router.get('/updateMeView/:client_id',isUserLogin,clientController.updateMeView);
+    // router.get('/updateMeView/:client_id',isUserLogin,clientController.updateMeView);
     // websiteView
     router.get('/websiteView',clientController.websiteView);
     // create Regis

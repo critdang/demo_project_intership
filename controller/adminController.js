@@ -103,15 +103,18 @@ const updateUser = catchAsync(async (req, res,next) => {
     if(age) user.age = age;
 
     await user.save();
-    helperFn.returnSuccess(req,res,user);
+    // helperFn.returnSuccess(req,res,user);
+    res.redirect('/admin/updateProfileView');
 })
 
-const updateProfileView = (req, res) => {
+const updateProfileView = catchAsync(async(req, res) => {
     if (!req.isAuthenticated()) return res.redirect('/admin/loginView');
 
-    const data = req.user.user_id;
+    const user_id ={...req.user.user_id};
+    const data = await User.findOne({where: user_id});
+    // helperFn.returnSuccess(req, res, data);
     return res.render('admin/updateProfileView.ejs',{data});
-}
+});
 
 // CRUD class
 const getAllClass = catchAsync(async (req, res) => {

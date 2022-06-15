@@ -48,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
     regisDate: {
       type: DataTypes.DATE,
       get() {
-          return moment(this.getDataValue('regisDate')).format('YYYY-MM-DD');
+          return moment(this.getDataValue('regisDate')).format('LLLL');
         },
     },
     admAction: {

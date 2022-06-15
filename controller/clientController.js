@@ -89,10 +89,10 @@ const login = catchAsync(async (req, res,next) => {
         isActive,
     } = client;
     // check countLogin and isActive
-    // if(countLogin >=3 || !isActive) {
-    //     return next(
-    //         new AppError( process.env.DISABLED,400))
-    // };
+    if(countLogin >=3 || !isActive) {
+        return next(
+            new AppError( process.env.DISABLED,400))
+    };
     const wrongPassword = await helperFn.comparePassword(inputPassword,password);
     if(!wrongPassword) {
         await client.increment('countLogin');
@@ -193,9 +193,9 @@ const updateMe = catchAsync(async (req, res,next) => {
 
     await client.save();
 
-    helperFn.returnSuccess(req, res,client);
+    // helperFn.returnSuccess(req, res,client);
 
-    // res.redirect("/admin/getClient");
+    res.redirect("/client/getProfile");
 })
 const deleteClient = catchAsync(async (req, res) => {
     const t = await sequelize.transaction();
@@ -213,17 +213,18 @@ const deleteClient = catchAsync(async (req, res) => {
         console.log(err);
     }
 })
-const getProfile = async(req, res) => {
+const getProfile = catchAsync(async(req, res) => {
     // client_id = req.params.client_id; cùng địa chỉ
-    const data = {...req.user};
+    const client_id = {...req.user.client_id};
+    const data = await Client.findOne({where: client_id})
     res.render('website/updateMeView.ejs',
     {data})
-}
+})
 // update Me view
-const updateMeView = (req, res) => {
-    res.render('website/updateMeView.ejs',
-    {data : req.params})
-};
+// const updateMeView = (req, res) => {
+//     res.render('website/updateMeView.ejs',
+//     {data : req.params})
+// };
 const websiteView = async(req, res) => {
     res.render('website/websiteView.ejs');
 };
@@ -326,7 +327,7 @@ const getOpenClass = catchAsync(async (req, res) => {
             limit: 5
         });
 
-        // helperFn.returnSuccess(req,res,regisExists);
+        // helperFn.returnSuccess(req,res,data);
         res.render('website/registView',{data,client_id});
     }catch(err){
         console.log(err);
@@ -385,7 +386,7 @@ module.exports = {
     updateClientPasswordView:updateClientPasswordView,
     getProfile:getProfile,
     updateMe:updateMe,
-    updateMeView:updateMeView,
+    // updateMeView:updateMeView,
     uploadAvatar:uploadAvatar,
     websiteView:websiteView,
     deleteClient:deleteClient,
