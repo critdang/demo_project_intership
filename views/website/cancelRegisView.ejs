@@ -21,7 +21,7 @@
 <body>
     <div class="container">
         <div class="row">
-            <form action="/cancelRegis/client/" method="POST">
+            <!-- <form action="/cancelRegis/client/" method="POST"> -->
                 <div class="form-row">
                     
                     <div class="col-12 mt-3 text-uppercase">Cancel Registration class</div>
@@ -48,7 +48,7 @@
                             <td><%= data[i].status %></td>
                             <td><%= data[i].regisDate %></td>
                             <td>
-                                <a class="cancel-btn btn btn-warning" href="/client/<%=client_id%>/cancelRegis/<%= data[i].class_id %>">Cancel</a> 
+                                <a class="cancel-btn btn btn-warning" href="/client/<%=client_id%>/cancel_regis/<%= data[i].class_id %>">Cancel</a> 
                                 <br />
                               </td>
                           </tr>
@@ -56,7 +56,7 @@
                         </tbody>
                       </table>
                 </div>
-            </form>
+            <!-- </form> -->
         </div>
     </div>
 </body>

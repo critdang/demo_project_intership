@@ -15,6 +15,7 @@ const {promisify} = require('util');
 const removeFile = promisify(fs.unlink);
 const {Op} = require('sequelize');
 const { sequelize } = require('../models');
+const constants = require('../constants');
 
 require('dotenv').config();
 
@@ -25,7 +26,7 @@ const getClient = async(req, res) => {
     })
 
     // helperFn.returnSuccess(req, res, data);
-    res.render('admin/viewClients',{data});
+    res.render('admin/viewClients.ejs',{data});
 }
 const idClient = async(req, res) => {
     const client = await Client.findOne({
@@ -40,12 +41,12 @@ const idClient = async(req, res) => {
 const createClient = catchAsync(async (req, res,next) => {
     const {firstName,client_email,password,lastName} = req.body;
     if(!firstName || !client_email || !password) {
-        return res.status(400).json(process.env.FILL_OUT);
+        return next (new AppError(constants.FILL_OUT,400));
     }
     const emailExists = await Client.findOne({where: {client_email: client_email}});
-    if(emailExists) {return res.status(400).json(process.env.EXIST_ACCOUNT)};
+    if(emailExists) {return next(new AppError(constants.EXIST_ACCOUNT,400))};
     
-    if(!client_email) return next(new AppError(process.env.PROVIDE_EMAIL,400))
+    if(!client_email) return next(new AppError(constants.PROVIDE_EMAIL,400));
     await Client.create({
         firstName,
         client_email,
@@ -57,12 +58,12 @@ const createClient = catchAsync(async (req, res,next) => {
 
     helperFn.sendEmail(
         client_email,
-        process.env.SUCCESS_EMAIL,
-        process.env.SUCCESS_EMAIL_DES,
-        process.env.SUCCESS_EMAIL_ENDPOINT,
+        constants.SUCCESS_EMAIL,
+        constants.SUCCESS_EMAIL_DES,
+        constants.SUCCESS_EMAIL_ENDPOINT,
         token,
     );
-    res.redirect('/client/loginView')
+    res.redirect('/client/login_view')
     // helperFn.returnSuccess(req, res);
 });
 
@@ -74,13 +75,13 @@ const login = catchAsync(async (req, res,next) => {
     const {client_email:inputEmail, password:inputPassword} = req.body;
     // check exist email
     if(!inputEmail || !inputPassword) {
-        return next(new AppError(process.env.PROVIDE,400))
+        return next(new AppError(constants.PROVIDE,400))
     }
     // get exist email
     const client = await Client.findOne( {where: {client_email:inputEmail}});
 
     if(!client) {
-        return next(new AppError(process.env.EMAIL_NOT_CORRECT,400));
+        return next(new AppError(constatns.EMAIL_NOT_CORRECT,400));
     };
     // get all params client
     const {
@@ -91,13 +92,13 @@ const login = catchAsync(async (req, res,next) => {
     // check countLogin and isActive
     if(countLogin >=3 || !isActive) {
         return next(
-            new AppError( process.env.DISABLED,400))
+            new AppError(constants.DISABLED,400));
     };
     const wrongPassword = await helperFn.comparePassword(inputPassword,password);
     if(!wrongPassword) {
         await client.increment('countLogin');
         await client.save();
-        return next(new AppError(process.env.PASS_NOT_CORRECT, 400));
+        return next(new AppError(constants.PASS_NOT_CORRECT, 400));
     };
     const token = helperFn.generateToken({ client_id:client.client_id},'1d');
     client.countLogin = 0;
@@ -105,6 +106,7 @@ const login = catchAsync(async (req, res,next) => {
     res.cookie('jwt',token, { httpOnly: true, secure: true, maxAge: 3600000 });
     const linkImage = client.avatar
     const myImage = cloudinary.image(linkImage, {type: "fetch"},{width: 100, height: 150, crop: "fill"});
+
     // helperFn.returnSuccess(req,res,myImage);
     res.render("website/websiteView",{ data: [client],token:token,Image: myImage});
 });
@@ -114,7 +116,7 @@ const loginView = async(req, res) => {
 
 const logout = (req, res) => {
     req.logout();
-    res.redirect('/client/loginView');
+    res.redirect('/client/login_view');
 }
 
 const verifyClientEmail = catchAsync(async(req, res,next) => {
@@ -129,15 +131,15 @@ const verifyClientEmail = catchAsync(async(req, res,next) => {
         }
     });
     if(!client) {
-        return next(new AppError(process.env.EMAIL_NOT_AVA,401));
+        return next(new AppError(constants.EMAIL_NOT_AVA,401));
     }
     client.isActive = true;
     await client.save();
 }catch (err) {
     if(err.name ==='TokenExpiredError')
-    return next(new AppError(process.env.TOKEN_EXPIRED,401));
+    return next(new AppError(constants.TOKEN_EXPIRED,401));
 }
-    helperFn.returnSuccess(req, res, process.env.SUCCESS_VERIFY);
+    helperFn.returnSuccess(req, res, constants.SUCCESS_VERIFY);
 })
 
 const updateClientPassword = catchAsync(async (req, res,next) => {
@@ -149,7 +151,7 @@ const updateClientPassword = catchAsync(async (req, res,next) => {
     })
     const checkPass = await helperFn.comparePassword(oldPass,client.password);
     if(!checkPass) {
-        return next(new AppError(process.env.CHECK_PASS,400));
+        return next(new AppError(constants.CHECK_PASS,400));
     }
     const hashPass = await bcrypt.hash(newPass,8);
 
@@ -195,19 +197,31 @@ const updateMe = catchAsync(async (req, res,next) => {
 
     // helperFn.returnSuccess(req, res,client);
 
-    res.redirect("/client/getProfile");
+    res.redirect("/client/get_profile");
 })
 const deleteClient = catchAsync(async (req, res) => {
     const t = await sequelize.transaction();
     try{
         client_id = req.params.client_id;
+        // deleteClient
         await Client.destroy({where: {client_id:client_id}},{transaction:t});
+
+        //decrease current Student
+        const ExistRegis = await Regis.findOne({
+            where: {client_id},
+        })
+        if(ExistRegis) {
+        class_id = {...ExistRegis.class_id};
+        Class.decrement('current_student', { where: { class_id } },{transaction:t})
+        // delete Regis
         await Regis.destroy({where: {client_id:client_id}},{transaction:t});
+        const data = await Class.findOne({where: { class_id}})
+        }
         await t.commit();
-        helperFn.returnSuccess(req, res );
-        // helperFn.returnSuccess(req, res,'Client deleted successfully')
+
+        // helperFn.returnSuccess(req, res ,data);
         
-        // res.redirect('/admin/getClient');
+        res.redirect('/admin/get_client');
     }catch(err) {
         t.rollback();
         console.log(err);
@@ -221,15 +235,16 @@ const getProfile = catchAsync(async(req, res) => {
     {data})
 })
 // update Me view
-// const updateMeView = (req, res) => {
-//     res.render('website/updateMeView.ejs',
-//     {data : req.params})
-// };
+const updateMeView = (req, res) => {
+    res.render('website/updateMeView.ejs',
+    {data : req.params})
+};
+
 const websiteView = async(req, res) => {
     res.render('website/websiteView.ejs');
 };
 const regis = async (req, res,next) => {
-    if (!req.isAuthenticated()) return res.redirect('/client/loginView');
+    if (!req.isAuthenticated()) return res.redirect('/client/login_view');
     try{
     client_id = req.params.client_id;
     class_id = req.params.class_id;
@@ -242,7 +257,7 @@ const regis = async (req, res,next) => {
     });
     if(regisExists) {
         await regisExists.destroy();
-        return res.json(process.env.REGIS_EXISTS)
+        return res.json(constants.REGIS_EXISTS)
     }
     
     const classStatus = await Class.findOne({
@@ -251,7 +266,7 @@ const regis = async (req, res,next) => {
         }
     })
     if(classStatus.max_students == classStatus.current_student) {
-        return next(new AppError(process.env.CLASS_FULL,400));
+        return next(new AppError(constants.CLASS_FULL,400));
     }
     const data = await Regis.create({
         client_id,
@@ -278,7 +293,7 @@ const registration = catchAsync(async(req, res) => {
     });
 
     if(!regis) {
-        res.send(process.env.NO_REGIS);
+        res.send(constants.NO_REGIS);
     }
 
     // helperFn.returnSuccess(req, res)
@@ -366,7 +381,7 @@ const getCalenderClass = catchAsync(async (req, res) => {
       }
     });
     if (!data) {
-      return next(new AppError(process.env.NO_CLASS, 404));
+      return next(new AppError(constants.NO_CLASS, 404));
     }
 
     // helperFn.returnSuccess(req, res,data)
@@ -386,7 +401,7 @@ module.exports = {
     updateClientPasswordView:updateClientPasswordView,
     getProfile:getProfile,
     updateMe:updateMe,
-    // updateMeView:updateMeView,
+    updateMeView:updateMeView,
     uploadAvatar:uploadAvatar,
     websiteView:websiteView,
     deleteClient:deleteClient,

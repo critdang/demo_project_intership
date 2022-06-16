@@ -15,7 +15,7 @@ describe('Post Endpoints', () => {
 describe('Get Endpoints', () => {
   it('get All Class', async () => {
     const res = await request(app)
-      .get('/admin/allClass')
+      .get('/classes')
       .send({
       })
     expect(res.statusCode).toEqual(200)
@@ -25,7 +25,7 @@ describe('Get Endpoints', () => {
 describe('Post Endpoints', () => {
   it('Create class', async () => {
     const res = await request(app)
-      .post('/admin/createClass')
+      .post('/classes/create')
       .send({
         subject: 'test1',
         max_students: 10,
@@ -39,7 +39,7 @@ describe('Post Endpoints', () => {
 describe('Post Endpoints', () => {
   it('Update class', async () => {
     const res = await request(app)
-      .post('/admin/createClass')
+      .post('/classes/')
       .send({
         subject: 'test1',
         max_students: 10,

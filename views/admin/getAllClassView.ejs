@@ -30,8 +30,8 @@
                             Account
                           </a>
                           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/admin/updateUserPasswordView">Change password</a>
-                            <a class="dropdown-item" href="/admin/updateProfileView">Update Profile</a>
+                            <a class="dropdown-item" href="/admin/update_password_view">Change password</a>
+                            <a class="dropdown-item" href="/admin/update_profile_view">Update Profile</a>
                           </div>
                         </li>
                         <li class="nav-item dropdown">
@@ -39,7 +39,7 @@
                             Registration submission 
                           </a>
                           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/api/classes/listRegistration">List registration</a> 
+                            <a class="dropdown-item" href="/classes/list_registration">List registration</a> 
                           </div>
                         </li>
                         <li class="nav-item dropdown">
@@ -47,8 +47,8 @@
                             Manage User
                           </a>
                           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/client/signupView">Create user</a> 
-                            <a class="dropdown-item" href="/admin/getClient">Get user</a>
+                            <a class="dropdown-item" href="/client/signup_view">Create user</a> 
+                            <a class="dropdown-item" href="/admin/get_client">Get user</a>
                           </div>
                         </li>
                       </ul>
@@ -58,7 +58,7 @@
                     </div>
                     </nav>
                   <div class="col-12 mt-3 text-uppercase">All Classes</div>
-                  <a href="/admin/createClassView" class="btn btn-primary  active" role="button" aria-pressed="true" style="margin-bottom: 15px;">Create Class</a>
+                  <a href="/classes/createView" class="btn btn-primary  active" role="button" aria-pressed="true" style="margin-bottom: 15px;">Create Class</a>
                     <table class="table table-striped">
                         <thead>
                           <tr>
@@ -88,10 +88,10 @@
                             <td><%= data[i].to %></td>
                             <td><%= data[i].status %></td>
                             <td>
-                                <a href="/admin/updateClassView/<%=data[i].class_id %>">Edit</a> <br />
-                                <a href="/admin/delete/<%=data[i].class_id %>">Delete</a>
+                                <a href="/classes/updateView/<%=data[i].class_id %>">Edit</a> <br />
+                                <a href="/classes/delete/<%=data[i].class_id %>">Delete</a>
                                 </br>
-                                <a href="/admin/viewClients/<%=data[i].class_id %>">View clients</a>
+                                <a href="/admin/view_clients/<%=data[i].class_id %>">View clients</a>
                               </td>
                           </tr>
                         <% } %>

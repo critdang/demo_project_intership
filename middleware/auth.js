@@ -59,40 +59,45 @@ exports.authClient = catchAsync(async passport => {
     ))
 })
 
-exports.protectingRoutes = catchAsync(async (req, res,next) => {    
-    
-    const bearerHeader = req.headers['authorization'] || req.cookie.jwt;//raw header
-
-    if(typeof bearerHeader !== 'undefined') {
-        const bearer = bearerHeader.split(' '); //tách header
-        const bearerToken = bearer[1];//lấy dãy string sau
-        req.token = bearerToken; //chèn thêm token lưu lại để check
-    }else{
-        return next(new AppError('Please pass token to header',401));
-    }
-    if(!req.token || req.token === "null") {
-        return next(new AppError("You have  not log in yet",401));
-    }
-
-    const decode =  jwt.verify(req.token, process.env.JWT_SECRET,(err,decode) => {
-        if(err.name === "JsonWebTokenError") {
-            return next(new AppError('Invalid token',401));
-        }
-    });
-    if(!decode) return next(new AppError('Invalid token',401));
-    const client = await Client.findOne({
-        attributes: {exclude: ['password','countLogin']},
-        where: {
-            client_id: decode.client_id,
-        }, 
-    });
-    if(!client) {
-        return next(new AppError('this client does not exist',401));
-    }
-    req.client = client; 
+exports.protectingRoutes = catchAsync(async (req, res,next) => {
+    if (!req.isAuthenticated()) return res.redirect('/admin/login_view');
     next();
-    
 })
+
+// exports.protectingRoutes = catchAsync(async (req, res,next) => {    
+    
+//     const bearerHeader = req.headers['authorization'] || req.cookie.jwt;//raw header
+
+//     if(typeof bearerHeader !== 'undefined') {
+//         const bearer = bearerHeader.split(' '); //tách header
+//         const bearerToken = bearer[1];//lấy dãy string sau
+//         req.token = bearerToken; //chèn thêm token lưu lại để check
+//     }else{
+//         return next(new AppError('Please pass token to header',401));
+//     }
+//     if(!req.token || req.token === "null") {
+//         return next(new AppError("You have  not log in yet",401));
+//     }
+
+//     const decode =  jwt.verify(req.token, process.env.JWT_SECRET,(err,decode) => {
+//         if(err.name === "JsonWebTokenError") {
+//             return next(new AppError('Invalid token',401));
+//         }
+//     });
+//     if(!decode) return next(new AppError('Invalid token',401));
+//     const client = await Client.findOne({
+//         attributes: {exclude: ['password','countLogin']},
+//         where: {
+//             client_id: decode.client_id,
+//         }, 
+//     });
+//     if(!client) {
+//         return next(new AppError('this client does not exist',401));
+//     }
+//     req.client = client; 
+//     next();
+    
+// })
 
 exports.accessToken = catchAsync(async (req, res) => {
     const accessToken = req.cookie.jwt

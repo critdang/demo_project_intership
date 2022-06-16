@@ -25,7 +25,7 @@ describe('UPDATE_PROFILE AND UPDATE_PASSWORD', () => {
   
       it('should return 200 if insert valid image file when update', async () => {
         const res = await request(app)
-          .patch('/client/updateMe')
+          .patch('/client/update_me')
           .set('Content-Type', 'multipart/form-data')
           .set('Authorization', `Bearer ${token}`)
         //   .attach('avatar',s 'test/img/client-avatar.jpeg');

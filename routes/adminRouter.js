@@ -15,34 +15,25 @@ let initAdminRouter = (app) => {
 
     // router.patch('/updateMe',clientController.uploadAvatar,clientController.updateMe)
     // admin
-    router.post('/login',passport.authenticate('user-local',{failureRedirect:'/admin/loginView'}) ,adminController.login);
+    router.post('/login',passport.authenticate('user-local',{failureRedirect:'/admin/login_view'}) ,adminController.login);
     router.get('/logout',adminController.logout);
-    router.post('/updateUserPassword',adminController.updateUserPassword);
-    router.post('/updateUser/:user_id',upload.single('image'),adminController.updateUser);
-    // CRUD class
-    router.post('/createClass',adminController.createClass);
-    router.get('/allClass',adminController.getAllClass);
-    router.post('/updateClass/:class_id',adminController.updateClass);
-    router.get('/delete/:class_id',adminController.deleteClass);
-
+    router.post('/update_password',auth.protectingRoutes,adminController.updateUserPassword);
+    router.post('/update/:user_id',auth.protectingRoutes,upload.single('image'),adminController.updateUser);
     // view
-    router.get('/loginView',adminController.loginAdminView);
-    router.get('/updateUserPasswordView',adminController.updateUserPasswordView);
-    router.get('/updateProfileView',adminController.updateProfileView);
-    router.get('/updateClassView/:class_id',adminController.updateClassView);
-    router.get('/createClassView',adminController.createClassView);
-    router.get('/getAllClassView',adminController.getAllClassView);
-    router.get('/viewClientsInClassView',adminController.viewClientsInClassView);
+    router.get('/login_view',adminController.loginAdminView);
+    router.get('/update_password_view',auth.protectingRoutes,adminController.updateUserPasswordView);
+    router.get('/update_profile_view',auth.protectingRoutes,adminController.updateProfileView);
+    router.get('/view_clients_in_class',auth.protectingRoutes,adminController.viewClientsInClassView);
     // View list register
-    router.get('/listRegisterd', adminController.getListRegisterClass);
-    router.post('/submitClassRegis',adminController.submitClassRegistration);
-    router.get('/:class_id/deleteClientInClass/:client_id',adminController.deleteClientInClass)
+    router.get('/list_registerd',auth.protectingRoutes, adminController.getListRegisterClass);
+    router.post('/submit_class_regis',auth.protectingRoutes,adminController.submitClassRegistration);
+    router.get('/:class_id/delete_client_in_class/:client_id',auth.protectingRoutes,adminController.deleteClientInClass)
+    
     // CRUD clients
-    router.get('/viewClients/:class_id', adminController.viewClientsInClass);
-    router.get('/deleteClient/:client_id',clientController.deleteClient);
-
-
-    router.get('/getClient', clientController.getClient);
+    router.get('/view_clients/:class_id',auth.protectingRoutes, adminController.viewClientsInClass);
+    router.get('/delete_client/:client_id',auth.protectingRoutes,clientController.deleteClient);
+    router.get('/get_client', clientController.getClient);
+    
     return app.use("/admin",router);
 }
 

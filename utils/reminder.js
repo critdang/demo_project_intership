@@ -20,9 +20,8 @@ const reminder = async(req, res) => {
             );
           });
     }catch(err){
-
+        console.log(err);
     }
-
 }
 const test = async() => {
     const [results] = await sequelize.query(getReminder);
