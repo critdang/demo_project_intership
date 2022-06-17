@@ -1,0 +1,35 @@
+<nav class="navbar navbar-expand-lg navbar-dark " style="width:100%; background-color:rgba(78,87,101)">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Account
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/admin/update_password_view">Change password</a>
+            <a class="dropdown-item" href="/admin/update_profile_view">Update Profile</a>
+            </div>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="/api/classes/listRegisteredClass/" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Registration submission 
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/classes/list_registration">List registration</a> 
+            </div>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="/api/classes/listRegisteredClass/" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Manage User
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/client/signup_view">Create user</a> 
+            <a class="dropdown-item" href="/admin/get_client">Get user</a>
+            </div>
+        </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+        <a class="btn my-2 my-sm-0" href="/admin/logout" style="color:white;border-color: white;">Log Out</a>
+        </form>
+    </div>
+</nav>

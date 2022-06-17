@@ -24,71 +24,39 @@
 <body>
     <div class="container">
         <div class="row" style="display:block">
-            <form action="/api/client/" method="POST" style="width:100%">
-              <% data.forEach((item)=> { %>
-              
-                <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                  <ul class="navbar-nav mr-auto">
-                    <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Class Registration
-                      </a>
-                      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/client/get_open_class/<%=item.client_id%>">Regist Class</a>
-                        <a class="dropdown-item" href="/client/get_pending_class/<%=item.client_id%>">Cancel Registration</a>
-                        <a class="dropdown-item" href="/client/registed_class/<%=item.client_id%>">List Class</a>
-                      </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="/api/classes/listRegisteredClass/" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Class 
-                      </a>
-                      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/client/registed_class/<%=item.client_id%>">List of registered classes </a>
-                        <a class="dropdown-item" href="/client/<%=item.client_id%>/calender">Calendar study</a>
-                      </div>
-                    </li>
-                  </ul>
-                  <form class="form-inline my-2 my-lg-0">
-                    <a class="btn my-2 my-sm-0" style="color:white;border-color: white;" href="/client/logout">Log Out</a>
-                  </form>
-                </div>
-                </nav>
-              <% }) %>
-                <div class="form-row">
-                    <div class="col-12 mt-3 text-uppercase">Profile</div>
+            <%- include('../components/clientNav.ejs')%>
+              <div class="form-row">
+                  <div class="col-12 mt-3 text-uppercase">Profile</div>
                     <table class="table table-striped">
                       <thead>
-                          <tr>
-                            <th scope="col">No.</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">First Name</th>
-                            <th scope="col">Last Name</th>
-                            <th scope="col">Age</th>
-                            <th scope="col">Avatar</th>
-                            <th scope="col">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <% for(var i= 0; i<data.length; i++) { %>
-                          <tr>
-                            <th scope="row"><%= i+1 %></th>
-                            <td><%= data[i].client_email %></td>
-                            <td><%= data[i].firstName %></td>
-                            <td><%= data[i].lastName %></td>
-                            <td><%= data[i].age %></td>
-                            <td><img src="<%=data[i].avatar%>" style="width: 180px"></td>
-                            <td>
-                                <a href="/client/get_profile">Edit</a> <br />
-                                <a href="/client/updateClientPasswordView/<%=data[i].client_id %>">Change Password</a>
-                              </td>
-                          </tr>
-                        <% } %>
-                        </tbody>
-                      </table>
-                </div>
-            </form>
+                        <tr>
+                          <th scope="col">No.</th>
+                          <th scope="col">Email</th>
+                          <th scope="col">First Name</th>
+                          <th scope="col">Last Name</th>
+                          <th scope="col">Age</th>
+                          <th scope="col">Avatar</th>
+                          <th scope="col">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% for(var i= 0; i<data.length; i++) { %>
+                        <tr>
+                          <th scope="row"><%= i+1 %></th>
+                          <td><%= data[i].client_email %></td>
+                          <td><%= data[i].firstName %></td>
+                          <td><%= data[i].lastName %></td>
+                          <td><%= data[i].age %></td>
+                          <td><img src="<%=data[i].avatar%>" style="width: 180px"></td>
+                          <td>
+                              <a href="/client/get_profile">Edit</a> <br />
+                              <a href="/client/updateClientPasswordView/<%=data[i].client_id %>">Change Password</a>
+                            </td>
+                        </tr>
+                      <% } %>
+                      </tbody>
+                    </table>
+              </div>
         </div>
     </div>
 </body>
